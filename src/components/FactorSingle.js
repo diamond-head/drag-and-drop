@@ -9,45 +9,42 @@ export default function FactorSingle({
   grid,
   height,
   width,
-  position,
-  handle,
   factorId,
-  positionOffset,
-  restrictedSelectors,
-  defaultPosition,
-  updatedFactorPositions,
+  // position,
+  // positionOffset,
+  updatedPosition = {},
   onFactorDragStop,
-  onFactorDragStart,
-  onFactorRefLoad
+  onFactorDragStart
 }) {
+  const [position, setPosition] = React.useState({})
   const nodeRef = React.useRef(null)
 
-  React.useEffect(() => {
-    if (nodeRef && nodeRef.current) {
-      const boundObject = nodeRef.current?.getBoundingClientRect()
-      onFactorRefLoad(boundObject)
-    }
-  }, [nodeRef])
-
+  const handleDrag = (e, data) => {
+    setPosition(data)
+  }
+  
   const handleOnStart = (e, data) => {
-    if (updatedFactorPositions[`${data.x}x${data.y}`] && (updatedFactorPositions[`${data.x}x${data.y}`] !== factorId)) {
-      return false
-    }
+    setPosition(data)
     const boundObject = nodeRef.current?.getBoundingClientRect()
-    onFactorDragStart(e, data, id, boundObject, factorId)
+    onFactorDragStart(data, id, factorId, boundObject)
   }
 
   const handleOnStop = (e, data) => {
+    setPosition(data)
     const boundObject = nodeRef.current?.getBoundingClientRect()
-    onFactorDragStop(data, id, boundObject, factorId)
+    onFactorDragStop(boundObject, factorId)
   }
+
+  const newPos = (!!updatedPosition.x && !!updatedPosition.y && updatedPosition.factorId === factorId) ? updatedPosition : position
+  // newPos = Object.keys(newPos).length > 0 ? newPos : {}
 
   return (
     <Draggable
-      handle={'.handler-'+id}
+      {...(!!newPos.x && !!newPos.y ? { position: { ...newPos } } : {})}
       bounds={bounds}
       nodeRef={nodeRef}
       grid={grid}
+      onDrag={handleDrag}
       onStart={handleOnStart}
       onStop={handleOnStop}
     >

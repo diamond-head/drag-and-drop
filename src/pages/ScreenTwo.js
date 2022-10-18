@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from "react-redux";
 import DropBoard from "../components/DropBoard";
@@ -9,19 +9,22 @@ import {
   setCellPositions,
   setFuturConfidenceInput
 } from '../store/features/storyInfo'
-import { getPresentAgeSlabValueMapping } from '../data/TableConstants'
+import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
 export default function ScreenTwo() {
   const navigate = useNavigate()
+  const userInfo = useSelector(state => state.userInfo)
   const storyInfo = useSelector(state => state.storyInfo)
   const dispatch = useDispatch()
 
   const greenMapping = React.useMemo(() => {
     return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.cellPositions?.length])
 
   const redMapping = React.useMemo(() => {
     return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.redCellPositions?.length])
 
   const onRecordCellPositions = (positions, tableType) => {
@@ -36,6 +39,13 @@ export default function ScreenTwo() {
     navigate('/screen3')
   }
 
+  const tableList = PRESENT_TABLE_DATA.filter((c) => {
+    if (c.range[0] >= userInfo?.value?.clientAge && userInfo?.value?.clientAge <= c.range[1]) {
+      return false
+    }
+    return true
+  })
+
   return (
     <div className="relative w-full p-4">
       {/* top section */}
@@ -46,16 +56,33 @@ export default function ScreenTwo() {
             color="text-green-500"
             text="Quality of Life MILESTONES"
           />
-          <FactorsGrid tableType={'GREEN'} cellPositions={greenMapping} data={FactorItemsGreen} onCellPositionsChange={handleCellPositionsChange}/>
+          <FactorsGrid
+            columnCount={tableList.length}
+            tableType={'GREEN'}
+            cellPositions={greenMapping} 
+            data={FactorItemsGreen} 
+            onCellPositionsChange={handleCellPositionsChange}
+          />
         </div>
       </div>
       {/* dropable section */}
-      <DropBoard ctaLabel={'THE NEXT CHAPTER'} onArrowCtaclick={redirectToNextScreen} onRecordCellPositions={onRecordCellPositions} />
+      <DropBoard 
+        tableList={tableList} 
+        ctaLabel={'THE NEXT CHAPTER'} 
+        onArrowCtaclick={redirectToNextScreen}
+        onRecordCellPositions={onRecordCellPositions} 
+      />
       {/* bottom section */}
       <div className="flex justify-end">
         <div className="flex gap-5 items-end">
           <QualityText color="text-red-500" text="Quality of Life CHALLENGES" />
-          <FactorsGrid tableType={'RED'} cellPositions={redMapping} data={FactorItemsRed} onCellPositionsChange={handleCellPositionsChange} />
+          <FactorsGrid 
+            columnCount={tableList.length}
+            tableType={'RED'} 
+            cellPositions={redMapping} 
+            data={FactorItemsRed} 
+            onCellPositionsChange={handleCellPositionsChange} 
+          />
         </div>
       </div>
     </div>

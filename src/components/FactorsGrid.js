@@ -1,27 +1,25 @@
 import React from "react";
 import FactorSingle from "./FactorSingle";
 
-export default function FactorsGrid({ data, cellPositions = [], bounds, tableType, onCellPositionsChange, isFutureStory }) {
-  const [factorPositions, setFactorPositions] = React.useState([])
-  const [updatedFactorPositions, setUpdatedFactorPositions] = React.useState({})
-  const windowScreenObject = document.querySelector('body').getBoundingClientRect()
+export default function FactorsGrid({ data, cellPositions = [], tableType, onCellPositionsChange, columnCount }) {
+  const [factorPositions, setFactorPositions] = React.useState({})
+  const windowScreenObject = window.document.documentElement
 
-  const handleFactorRefLoad = (ref) => {
-    if (ref) {
-      setFactorPositions((prev) => ([...prev, ref]))
-    }
-  }
-
-  const handleFactorDragStart = (argdata, id, ref, factorId) => {
-    const { x: factorX, y: factorY } = ref
-    setUpdatedFactorPositions((prev) => ({
+  const handleFactorDragStart = (argdata, id, factorId) => {
+    setFactorPositions((prev) => ({
       ...prev,
-      [`${factorX}x${factorY}`]: factorId
+      [factorId]: {
+        ...argdata  
+      }
     }))
   }
 
-  const handleFactorDrag = (argdata, id, ref, factorId) => {
+  const handleFactorDrag = (ref = {}, factorId, onChange = true) => {
     const { x: factorX, y: factorY } = ref
+    if (!factorX || !factorY) {
+      return
+    }
+  
     const rowLength = cellPositions.length
     let arr = []
 
@@ -69,7 +67,8 @@ export default function FactorsGrid({ data, cellPositions = [], bounds, tableTyp
       }
     }
 
-    onCellPositionsChange(inputPositions, tableType)
+    onChange && onCellPositionsChange(inputPositions, tableType)
+    return inputPositions
   }
 
   const calculateDistance = (x, y, x1, y1, row, col) => {
@@ -79,75 +78,57 @@ export default function FactorsGrid({ data, cellPositions = [], bounds, tableTyp
     return { distance: parseFloat(Math.sqrt(X + Y).toFixed(2)), row, col }
   }
 
-  const boundTop = (item, firstTop, factorTop, height, N) => { 
-    let top = (factorTop + (height * ((N / 2) - (item.rowIndex)))) + (4 * ((N / 2) - (item.rowIndex))) 
-    const dy = (firstTop - top)
-    return dy
-  }
-
   const processFactorBound = () => {
     let firstPosition = {}
-    let lastPosition = {}
     if (cellPositions) {
-      const { 0: firstRow, length, [length - 1]: lastRow } = cellPositions || []
+      const { 0: firstRow } = cellPositions || []
       const { 0: firstCol } = firstRow || []
-      const { length: _length, [_length - 1]: lastCol } = lastRow || []
-  
       firstPosition = firstCol || {}
-      lastPosition = lastCol || {}
     }
 
-    const { left: firstLeft, top: firstTop, right: firstRight, bottom: firstBottom, width, height } = firstPosition
-    const { left: lastLeft, top: lastTop, right: lastRight, bottom: lastBottom } = lastPosition
+    const { width, height } = firstPosition
+
     // GREEN table values
     const leftBoundValues = [
-      (windowScreenObject.width - ((3 * width) + (16 * 3) + 1)) * -1,
-      (windowScreenObject.width - ((2 * width) + (16 * 2) + 1)) * -1
+      (windowScreenObject.clientWidth - ((3 * (width + 16)))) * -1,
+      (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
-
     const rightBoundValues = [
-     isFutureStory ? ((2 * width) - 36) * -1 : ((3 * width) - 36) * -1, 
-     isFutureStory ? ((2 * width) - 19) * -1 : ((4 * width) - 19) * -1
+      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
+      (windowScreenObject.clientWidth - ((width + 16) + (16 + (width * columnCount)))) * -1,
     ]
     const topBoundValues = [
-      140 + (height - 4), 
-      140 + (height - height - 8),
-      140 + (height - height - height - 12),
-      140 + (height - height - height - height - 16)
+      // upperfactors + upperfactor gaps + body-padding + body-padding + lowerfactors + lowerfactors gaps 
+      // + margin + lower table header + lower table rows + center separator
+      // + upper table rows + upper table header + gaps
+      (windowScreenObject.clientHeight - ((height * 4) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      (windowScreenObject.clientHeight - ((height * 3) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      (windowScreenObject.clientHeight - ((height * 2) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      (windowScreenObject.clientHeight - ((height * 1) + (0 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
     ]
 
-    const bottomBoundValues = topBoundValues.map(i => i + (height * 10) - 25)
+    const bottomBoundValues = topBoundValues.map(i => i + (height * 10) - (56 / 2))
 
     // RED table values
     const leftBoundValues_RED = [
-      (windowScreenObject.width - ((3 * width) + (16 * 3) + 1)) * -1,
-      (windowScreenObject.width - ((2 * width) + (16 * 2) + 1)) * -1
+      ...leftBoundValues
     ]
     const rightBoundValues_RED = [
-      isFutureStory ? ((2 * width) - 36) * -1 : ((3 * width) - 36) * -1, 
-      isFutureStory ? ((2 * width) - 19) * -1 : ((4 * width) - 19) * -1
+      ...rightBoundValues
     ]
     const bottomBoundValues_RED = [
-      -166 + (height + height + height + height + 16),
-      -166 + (height + height + height + 12),
-      -166 + (height + height + 8),
-      -166 + (height + 4)
+      // Client Height -  lower factors height + lower factors gaps + body-padding + body-padding + upper factros height + upper factros gaps 
+      // + upper table rows height + separator height + lower table rows height + loewer table header + gaps
+      (windowScreenObject.clientHeight - ((height * 0) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      (windowScreenObject.clientHeight - ((height * 1) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      (windowScreenObject.clientHeight - ((height * 2) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      (windowScreenObject.clientHeight - ((height * 3) + (4 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4))
     ]
-    const topBoundValues_RED = bottomBoundValues_RED.map(i => (Math.abs(i) + (height * 10) - 25) * -1)
-    //
-    // const grids = [
-    //   [width + 0, height + 0],
-    //   [width + 0, height + 0],
-    //   [width + 0, height - 1],
-    //   [width + 0, height + 0],
-    //   [width + 0, height - 2],
-    //   [width + 0, height + 0],
-    //   [width + 0, height - 3],
-    //   [width + 0, height + 0]
-    // ]
+    // bottom value + table row height - center separtor height - lower factor gap
+    const topBoundValues_RED = bottomBoundValues_RED.map(i => (Math.abs(i) + (height * 10) - (56 / 2) - 4) * -1)
 
-    return data.map((item, index, arr) => {
-      const { right: factorRight, left: factorLeft, bottom: factorBottom, top: factorTop } = factorPositions[index] || {}
+    return data.map((item, index) => {
+      const { x, y } = factorPositions[item.factorId] || {}
       const boundsMaster = {
         GREEN: {
           left: leftBoundValues[item.colIndex],
@@ -163,31 +144,28 @@ export default function FactorsGrid({ data, cellPositions = [], bounds, tableTyp
         }
       }
 
+      const tempFactorPos = { ...factorPositions[item.factorId] }
+      // const { height } = factorPositions[item.factorId]?.node?.getBoundingClientRect() || {}
+      tempFactorPos.height = 27
+      const pos = handleFactorDrag(tempFactorPos, item.factorId, false)
+      console.log(pos)
       return {
         ...item,
         bounds: boundsMaster[tableType],
         width,
         height,
-        posOffset: {
-          x: 0,
-          y: 0
-        },
         position: {
-          x: (windowScreenObject.width * -1),
-          y: (windowScreenObject.height * -1)
+          x,
+          y
         },
-        defaultPosition: {
-          x: (windowScreenObject.width * -1),
-          y: (windowScreenObject.height * -1)
-        },
-        // grid: [51, 13.1],
-        grid: [width + 0, height + 0]
+        grid: [width, height]
       }
     })
   }
 
   const factorsData = React.useMemo(() => {
     return processFactorBound()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellPositions, factorPositions])
 
   if (factorsData.length === 0) return null
@@ -200,23 +178,15 @@ export default function FactorsGrid({ data, cellPositions = [], bounds, tableTyp
             id={index}
             key={index}
             factorId={item.factorId}
-            handle={'.handler'}
             height={item.height}
             width={item.width}
             background={item.background}
             text={item.text}
             positionOffset={item.posOffset}
-            restrictedSelectors={
-              tableType === 'GREEN'
-                ? '.green-table-header, .green-table-body-value, .arrow-center, .red-table-container'
-                : '.green-table-table, .arrow-center-container'
-            }
-            position={item.position}
+            updatedPosition={item.position}
             defaultPosition={item.defaultPosition}
             grid={item.grid}
             bounds={item.bounds}
-            updatedFactorPositions={updatedFactorPositions}
-            onFactorRefLoad={handleFactorRefLoad}
             onFactorDragStop={handleFactorDrag}
             onFactorDragStart={handleFactorDragStart}
           />

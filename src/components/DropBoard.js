@@ -3,7 +3,7 @@ import ArrowCenter from "./ArrowCenter";
 import GreenTable from "./GreenTable";
 import RedTable from "./RedTable";
 
-export default function DropBoard({ isFutureStory, onRecordCellPositions, onArrowCtaclick, ctaLabel, arrowPos }) {
+export default function DropBoard({ tableList, onRecordCellPositions, onArrowCtaclick, ctaLabel, arrowPos }) {
   const [positions, setPositions] = React.useState([])
   const [redPositions, setRedPositions] = React.useState([])
 
@@ -23,9 +23,9 @@ export default function DropBoard({ isFutureStory, onRecordCellPositions, onArro
 
   return (
     <div id="drop-board">
-      <GreenTable isFutureStory={isFutureStory} defaultPositions={positions} recordCellPositions={handleRecordCellPositions} />
+      <GreenTable tableList={tableList} defaultPositions={positions} recordCellPositions={handleRecordCellPositions} />
       <ArrowCenter arrowPos={arrowPos} label={ctaLabel} onCTAClick={handleCTA}/>
-      <RedTable isFutureStory={isFutureStory} defaultPositions={redPositions} recordCellPositions={handleRecordRedCellPositions} />
+      <RedTable tableList={tableList} defaultPositions={redPositions} recordCellPositions={handleRecordRedCellPositions} />
     </div>
   );
 }

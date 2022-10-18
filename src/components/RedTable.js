@@ -1,10 +1,10 @@
 import React from "react";
-import { PRESENT_TABLE_DATA, FUTURE_TABLE_DATA, TABLE_VALUES } from '../data/TableConstants'
+import { TABLE_VALUES } from '../data/TableConstants'
 
 export default function RedTable({
   recordCellPositions,
   defaultPositions,
-  isFutureStory
+  tableList
 }) {
   const refs = React.useRef([])
 
@@ -38,15 +38,13 @@ export default function RedTable({
     recordCellPositions(positions, 'RED')
   }
 
-  const tableList = isFutureStory ? FUTURE_TABLE_DATA : PRESENT_TABLE_DATA
-
   return (
     <table className="mb-4">
       <tbody id={'drag-board-red'}>
         {TABLE_VALUES.map((val, idx) => (
           <tr key={idx + 'values'} className="text-red-500 font-medium">
             <td className="h-[27px] w-[102px] border-spacing-0 p-0 green-table-body-value">{val}</td>
-            {tableList.map((_,index) => (
+            {tableList?.map((_,index) => (
               <td
                 className="h-[27px] w-[102px] border-spacing-0 p-0"
                 key={index + idx}
@@ -66,7 +64,7 @@ export default function RedTable({
       <thead className="red-table-header">
         <tr className="hidden">
           <th className="border-spacing-0 p-0 h-[27px] w-[102px]"></th>
-          {tableList.map((data, idx) => (
+          {tableList?.map((data, idx) => (
             <th className="border-spacing-0 p-0 h-[27px] w-[102px]" key={idx + data.id}>{data.text}</th>
           ))}
         </tr>

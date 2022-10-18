@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialStateValues = {
-  clientId: "",
-  clientAge: "",
+  clientId: 11,
+  clientAge: 34,
   meetingDate: "",
 };
 

@@ -19,15 +19,11 @@ export default function RegisterationForm() {
     dispatch(
       userChange({
         clientId: data.clientId,
-        clientAge: data.clientAge,
+        clientAge: +data.clientAge,
         meetingDate: data.meetingDate,
       })
     );
-    if (data.clientAge >= 60) {
-      navigate('/screen3')
-    } else {
-      navigate(`/screen2`);
-    }
+    navigate(`/screen2`);
   };
 
   return (

@@ -1,12 +1,12 @@
 import React from "react";
-import { PRESENT_TABLE_DATA, FUTURE_TABLE_DATA, TABLE_VALUES } from '../data/TableConstants'
+import { TABLE_VALUES } from '../data/TableConstants'
 
 const tableValues = [...TABLE_VALUES].reverse().map(i => i)
 
 export default function GreenTable({
   recordCellPositions,
   defaultPositions,
-  isFutureStory,
+  tableList
 }) {
   const refs = React.useRef([])
   React.useEffect(() => {
@@ -39,14 +39,12 @@ export default function GreenTable({
     recordCellPositions(positions, 'GREEN')
   }
 
-  const tableList = isFutureStory ? FUTURE_TABLE_DATA : PRESENT_TABLE_DATA
-
   return (
     <table className="mt-4">
       <thead className="green-table-header">
         <tr className="">
           <th className="border-spacing-0 p-0 h-[27px] w-[102px]"></th>
-          {tableList.map((data, idx) => (
+          {tableList?.map((data, idx) => (
             <th className="border-spacing-0 p-0 h-[27px] w-[102px]" key={idx + data.id}>{data.text}</th>
           ))}
         </tr>
@@ -55,7 +53,7 @@ export default function GreenTable({
         {tableValues.map((val, idx) => (
           <tr key={idx + 'values'} className="text-green-500 font-medium">
             <td className="h-[27px] w-[102px] border-spacing-0 p-0 green-table-body-value">{val}</td>
-            {tableList.map((_, index) => (
+            {tableList?.map((_, index) => (
               <td
                 className="h-[27px] w-[102px] border-spacing-0 p-0"
                 key={index + idx}

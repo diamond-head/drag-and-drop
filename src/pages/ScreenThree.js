@@ -6,7 +6,7 @@ import FactorsGrid from "../components/FactorsGrid";
 import QualityText from "../components/QualityText";
 import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
 import { setCellPositions, setFuturConfidenceInput } from '../store/features/storyInfo'
-import { getFutureAgeSlabValueMapping } from '../data/TableConstants'
+import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
 export default function ScreenTwo() {
   const navigate = useNavigate()
@@ -15,11 +15,13 @@ export default function ScreenTwo() {
   const dispatch = useDispatch()
 
   const greenMapping = React.useMemo(() => {
-    return getFutureAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.cellPositions?.length])
 
   const redMapping = React.useMemo(() => {
-    return getFutureAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.redCellPositions?.length])
 
   const onRecordCellPositions = (positions, tableType) => {
@@ -34,6 +36,13 @@ export default function ScreenTwo() {
     navigate('/big-picture')
   }
 
+  const tableList = PRESENT_TABLE_DATA.filter((c) => {
+    if (c.range[0] >= userInfo?.value?.clientAge && userInfo?.value?.clientAge <= c.range[1]) {
+      return false
+    }
+    return true
+  })
+
   return (
     <div className="relative w-full p-4">
       {/* top section */}
@@ -44,16 +53,34 @@ export default function ScreenTwo() {
             color="text-green-500"
             text="Quality of Life MILESTONES"
           />
-          <FactorsGrid isFutureStory={userInfo?.value?.clientAge >= 62} tableType={'GREEN'} cellPositions={storyInfo?.value?.cellPositions} data={FactorItemsGreen} onCellPositionsChange={handleCellPositionsChange}/>
+          <FactorsGrid 
+            columnCount={tableList.length}
+            tableList={tableList} 
+            tableType={'GREEN'} 
+            cellPositions={greenMapping} 
+            data={FactorItemsGreen} 
+            onCellPositionsChange={handleCellPositionsChange}
+          />
         </div>
       </div>
       {/* dropable section */}
-      <DropBoard isFutureStory={userInfo?.value?.clientAge >= 62} ctaLabel={'FUTURE CONFIDENCE'} onArrowCtaclick={redirectToNextScreen} onRecordCellPositions={onRecordCellPositions} />
+      <DropBoard
+        ctaLabel={'FUTURE CONFIDENCE'}
+        onArrowCtaclick={redirectToNextScreen}
+        onRecordCellPositions={onRecordCellPositions}
+      />
       {/* bottom section */}
       <div className="flex justify-end">
         <div className="flex gap-5 items-end">
           <QualityText color="text-red-500" text="Quality of Life CHALLENGES" />
-          <FactorsGrid isFutureStory={userInfo?.value?.clientAge >= 62} tableType={'RED'} cellPositions={storyInfo?.value?.redCellPositions} data={FactorItemsRed} onCellPositionsChange={handleCellPositionsChange} />
+          <FactorsGrid 
+            columnCount={tableList.length}
+            tableList={tableList} 
+            tableType={'RED'} 
+            cellPositions={redMapping} 
+            data={FactorItemsRed} 
+            onCellPositionsChange={handleCellPositionsChange} 
+          />
         </div>
       </div>
     </div>
