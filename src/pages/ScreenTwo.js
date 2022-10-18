@@ -24,7 +24,10 @@ export default function ScreenTwo() {
         return false
       }
       return true
-    })
+    }).map((i, idx) => ({
+      ...i,
+      mergedTableIndex: idx
+    }))
   }, [userInfo?.value?.clientAge])
 
   const greenMapping = React.useMemo(() => {

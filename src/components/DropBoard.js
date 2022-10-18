@@ -3,7 +3,16 @@ import ArrowCenter from "./ArrowCenter";
 import GreenTable from "./GreenTable";
 import RedTable from "./RedTable";
 
-export default function DropBoard({ tableList, onRecordCellPositions, onArrowCtaclick, ctaLabel, arrowPos }) {
+export default function DropBoard({ 
+  tableList, 
+  onRecordCellPositions, 
+  onArrowCtaclick, 
+  ctaLabel, 
+  arrowPos, 
+  hideCta,
+  isSummaryPage,
+  summaryData = {}
+}) {
   const [positions, setPositions] = React.useState([])
   const [redPositions, setRedPositions] = React.useState([])
 
@@ -23,9 +32,21 @@ export default function DropBoard({ tableList, onRecordCellPositions, onArrowCta
 
   return (
     <div id="drop-board">
-      <GreenTable tableList={tableList} defaultPositions={positions} recordCellPositions={handleRecordCellPositions} />
-      <ArrowCenter arrowPos={arrowPos} label={ctaLabel} onCTAClick={handleCTA}/>
-      <RedTable tableList={tableList} defaultPositions={redPositions} recordCellPositions={handleRecordRedCellPositions} />
+      <GreenTable 
+        summaryData={summaryData?.GREEN}
+        tableList={tableList} 
+        defaultPositions={positions} 
+        recordCellPositions={handleRecordCellPositions} 
+        isSummaryPage={isSummaryPage} 
+      />
+      <ArrowCenter hideCta={hideCta} arrowPos={arrowPos} label={ctaLabel} onCTAClick={handleCTA}/>
+      <RedTable
+        summaryData={summaryData?.RED}
+        tableList={tableList} 
+        defaultPositions={redPositions} 
+        recordCellPositions={handleRecordRedCellPositions} 
+        isSummaryPage={isSummaryPage}
+      />
     </div>
   );
 }

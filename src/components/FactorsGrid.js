@@ -46,6 +46,18 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
           closestCellCol = col
           isFound = true
           closestCellToFactor = null
+          if (!!cell?.x && !!cell?.y) {
+            // eslint-disable-next-line no-loop-func
+            setUpdateFactorPositions((prev) => ({
+              ...prev,
+              [factorId]: {
+                ...prev[factorId],
+                x: cell?.x,
+                y: cell?.y,
+                isCellFilled: true
+              }
+            }))
+          }
           break
         } else {
           const dist = calculateDistance(
@@ -63,7 +75,7 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             closestCellToFactorCol = dist.col
           }
           minimum = res
-          if (closestCellToFactor && closestCellToFactor?.x && closestCellToFactor?.y) {
+          if (closestCellToFactor && !!closestCellToFactor?.x && !!closestCellToFactor?.y) {
             closestCell = closestCellToFactor
             closestCellRow = closestCellToFactorRow
             closestCellCol = closestCellToFactorCol
@@ -73,7 +85,8 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
               [factorId]: {
                 ...prev[factorId],
                 x: closestCellToFactor?.x,
-                y: closestCellToFactor?.y
+                y: closestCellToFactor?.y,
+                isCellFilled: true
               }
             }))
           }
@@ -84,14 +97,20 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
       }
     }
 
-    const inputPositions = {
-      [factorId]: {
+    const inputPositions = [
+      closestCell.ageId,
+      {
         ageId: closestCell.ageId,
-        row: closestCellRow, 
+        factorId: factorId,
+        row: closestCellRow,
         col: closestCellCol,
-        value: closestCell.value
+        value: closestCell.value,
+        relativeX: refX,
+        relativeY: refY,
+        factorX,
+        factorY
       }
-    }
+    ]
     onChange && onCellPositionsChange(inputPositions, tableType)
   }
 

@@ -5,7 +5,7 @@ import DropBoard from "../components/DropBoard";
 import FactorsGrid from "../components/FactorsGrid";
 import QualityText from "../components/QualityText";
 import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
-import { setCellPositions, setFuturConfidenceInput } from '../store/features/storyInfo'
+import { setFuturConfidenceInput, setFutureCellPositions } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
 export default function ScreenThree() {
@@ -21,21 +21,26 @@ export default function ScreenThree() {
         return true
       }
       return false
+    }).map((val, idx, arr) => {
+      return {
+        ...val,
+        mergedTableIndex: (PRESENT_TABLE_DATA.length - arr.length) + idx
+      }
     })
   }, [userInfo?.value?.clientAge])
 
   const greenMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN', tableList)
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.futureCellPositions, 'GREEN', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storyInfo?.value?.cellPositions?.length])
+  }, [storyInfo?.value?.futureCellPositions?.length])
 
   const redMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED', tableList)
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.futureRedCellPositions, 'RED', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storyInfo?.value?.redCellPositions?.length])
+  }, [storyInfo?.value?.futureRedCellPositions?.length])
 
   const onRecordCellPositions = (positions, tableType) => {
-    dispatch(setCellPositions({ positions, tableType }))
+    dispatch(setFutureCellPositions({ positions, tableType }))
   }
 
   const handleCellPositionsChange = (input, tableType) => {

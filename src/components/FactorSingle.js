@@ -37,7 +37,6 @@ export default function FactorSingle({
   }
 
   const newPos = (!!updatedPosition && !!updatedPosition.x && !!updatedPosition.y) ? updatedPosition : null
-  // newPos = Object.keys(newPos).length > 0 ? newPos : {}
 
   return (
     <Draggable
