@@ -8,19 +8,29 @@ import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
 import { setCellPositions, setFuturConfidenceInput } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
-export default function ScreenTwo() {
+export default function ScreenThree() {
   const navigate = useNavigate()
   const userInfo = useSelector(state => state.userInfo)
   const storyInfo = useSelector(state => state.storyInfo)
   const dispatch = useDispatch()
 
+  const tableList = React.useMemo(() => {
+    return PRESENT_TABLE_DATA.filter((c) => {
+      const age = userInfo?.value?.clientAge
+      if ((c.range[0] >= age) || (age <= c.range[1]) ) {
+        return true
+      }
+      return false
+    })
+  }, [userInfo?.value?.clientAge])
+
   const greenMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.cellPositions?.length])
 
   const redMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.redCellPositions?.length])
 
@@ -36,13 +46,6 @@ export default function ScreenTwo() {
     navigate('/big-picture')
   }
 
-  const tableList = PRESENT_TABLE_DATA.filter((c) => {
-    if (c.range[0] >= userInfo?.value?.clientAge && userInfo?.value?.clientAge <= c.range[1]) {
-      return false
-    }
-    return true
-  })
-
   return (
     <div className="relative w-full p-4">
       {/* top section */}
@@ -55,7 +58,6 @@ export default function ScreenTwo() {
           />
           <FactorsGrid 
             columnCount={tableList.length}
-            tableList={tableList} 
             tableType={'GREEN'} 
             cellPositions={greenMapping} 
             data={FactorItemsGreen} 
@@ -65,6 +67,7 @@ export default function ScreenTwo() {
       </div>
       {/* dropable section */}
       <DropBoard
+        tableList={tableList} 
         ctaLabel={'FUTURE CONFIDENCE'}
         onArrowCtaclick={redirectToNextScreen}
         onRecordCellPositions={onRecordCellPositions}
@@ -75,7 +78,6 @@ export default function ScreenTwo() {
           <QualityText color="text-red-500" text="Quality of Life CHALLENGES" />
           <FactorsGrid 
             columnCount={tableList.length}
-            tableList={tableList} 
             tableType={'RED'} 
             cellPositions={redMapping} 
             data={FactorItemsRed} 

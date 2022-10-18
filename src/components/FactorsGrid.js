@@ -2,14 +2,11 @@ import React from "react";
 import FactorSingle from "./FactorSingle";
 
 export default function FactorsGrid({ data, cellPositions = [], tableType, onCellPositionsChange, columnCount }) {
-  const [factorPositions, setFactorPositions] = React.useState({})
-  const [draggingFactorID, setDraggingFactorID] = React.useState(null)
-  // const [relativeCellPosition, setRelativeCellPosition] = React.useState(cellPositions)
-
   const windowScreenObject = window.document.documentElement
+  const [factorPositions, setFactorPositions] = React.useState({})
+  const [updateFactorPositions, setUpdateFactorPositions] = React.useState({})
 
   const handleFactorDragStart = (argdata, id, factorId) => {
-    setDraggingFactorID(factorId)
     setFactorPositions((prev) => ({
       ...prev,
       [factorId]: {
@@ -19,48 +16,72 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
     }))
   }
 
-  const handleFactorDrag = (ref = {}, factorId, onChange = true) => {
-    const { x: factorX, y: factorY } = ref
-    if (!factorX || !factorY) {
+  const handleFactorDrag = (data = {}, ref = {}, factorId, onChange = true) => {
+    const { x: factorX, y: factorY } = data
+    const { x: refX, y: refY } = ref
+
+    if (!factorX || !factorY || !refX || !refY) {
       return
     }
+
     const __cellPosition = factorPositions[factorId]?.relativeCellPosition
     const rowLength = __cellPosition?.length
-    let arr = []
-
-    for (let row = 0; row < rowLength; row++) {
-      const colLength = __cellPosition[row]?.length
-      for (let col = 0; col < colLength; col++) {
-        const cell = __cellPosition[row][col]
-        const factorY_value = tableType === 'GREEN'
-          ? factorY - (2 * ref.height)
-          : factorY
-
-        const dist = calculateDistance(
-          factorX,
-          factorY_value,
-          cell.x,
-          cell.y,
-          row,
-          col
-        )
-        arr.push(dist)
-      }
-    }
 
     let closestCell = {}
     let closestCellRow = 0
     let closestCellCol = 0
+    let closestCellToFactor = null
+    let closestCellToFactorRow = 0
+    let closestCellToFactorCol = 0
     let minimum = Number.MAX_SAFE_INTEGER
 
-    for (let i = 0; i < arr.length; i++) {
-      const res = Math.min(minimum, arr[i].distance)
-      if (res === arr[i].distance) {
-        closestCell = cellPositions[arr[i].row][arr[i].col]
-        closestCellRow = arr[i].row
-        closestCellCol = arr[i].col
+    let isFound = false
+    for (let row = 0; row < rowLength; row++) {
+      const colLength = __cellPosition[row]?.length
+      for (let col = 0; col < colLength; col++) {
+        const cell = __cellPosition[row][col]
+        if ((cell.x === factorX) && (cell.y === factorY)) {
+          closestCell = cell
+          closestCellRow = row
+          closestCellCol = col
+          isFound = true
+          closestCellToFactor = null
+          break
+        } else {
+          const dist = calculateDistance(
+            factorX,
+            factorY,
+            cell.x,
+            cell.y,
+            row,
+            col
+          )
+          const res = Math.min(minimum, dist.distance)
+          if (res === dist.distance) {
+            closestCellToFactor = __cellPosition[dist.row][dist.col]
+            closestCellToFactorRow = dist.row
+            closestCellToFactorCol = dist.col
+          }
+          minimum = res
+          if (closestCellToFactor && closestCellToFactor?.x && closestCellToFactor?.y) {
+            closestCell = closestCellToFactor
+            closestCellRow = closestCellToFactorRow
+            closestCellCol = closestCellToFactorCol
+            // eslint-disable-next-line no-loop-func
+            setUpdateFactorPositions((prev) => ({
+              ...prev,
+              [factorId]: {
+                ...prev[factorId],
+                x: closestCellToFactor?.x,
+                y: closestCellToFactor?.y
+              }
+            }))
+          }
+        }
       }
-      minimum = res
+      if (isFound) {
+        break
+      }
     }
 
     const inputPositions = {
@@ -71,9 +92,7 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
         value: closestCell.value
       }
     }
-
     onChange && onCellPositionsChange(inputPositions, tableType)
-    return inputPositions
   }
 
   const calculateDistance = (x, y, x1, y1, row, col) => {
@@ -164,8 +183,9 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
         const updatedRow = []
         row.forEach((col, colIndex) => {
           const newCol = {
-            x: boundX + (width * rowIndex),
-            y: boundY + (height * colIndex)
+            ...col,
+            x: boundX + (width * colIndex),
+            y: boundY + (height * rowIndex)
           }
           updatedRow.push(newCol)
         })
@@ -207,13 +227,6 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
 
   if (factorsData?.length === 0) return null
 
-  // const tempFactorPos = { ...(!!factorPositions[draggingFactorID] ? { ...factorPositions[draggingFactorID] } : {}) }
-  // const { x, y } = tempFactorPos
-  // const { height: tempHeight, x: nodeX, y: nodeY } = tempFactorPos?.node?.getBoundingClientRect() || {}
-  // console.log(x, y, nodeX, nodeY, draggingFactorID)
-  // tempFactorPos.height = tempHeight
-  // const updatedPosition = { x, y }
-
   return (
     <div>
       <div className="handler grid grid-cols-2 gap-x-4 gap-y-1 bg-green">
@@ -227,7 +240,7 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             background={item.background}
             text={item.text}
             positionOffset={item.posOffset}
-            updatedPosition={{}}
+            updatedPosition={updateFactorPositions[item.factorId]}
             defaultPosition={item.defaultPosition}
             grid={item.grid}
             bounds={item.bounds}

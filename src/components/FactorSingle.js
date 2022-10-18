@@ -12,7 +12,7 @@ export default function FactorSingle({
   factorId,
   // position,
   // positionOffset,
-  updatedPosition = {},
+  updatedPosition,
   onFactorDragStop,
   onFactorDragStart
 }) {
@@ -33,15 +33,15 @@ export default function FactorSingle({
   const handleOnStop = (e, data) => {
     setPosition(data)
     const boundObject = nodeRef.current?.getBoundingClientRect()
-    onFactorDragStop(boundObject, factorId)
+    onFactorDragStop(data, boundObject, factorId)
   }
 
-  const newPos = (!!updatedPosition.x && !!updatedPosition.y && updatedPosition.factorId === factorId) ? updatedPosition : position
+  const newPos = (!!updatedPosition && !!updatedPosition.x && !!updatedPosition.y) ? updatedPosition : null
   // newPos = Object.keys(newPos).length > 0 ? newPos : {}
 
   return (
     <Draggable
-      // {...(!!newPos.x && !!newPos.y ? { position: { ...newPos } } : {})}
+      {...(newPos ? { position: { ...newPos } } : {})}
       bounds={bounds}
       nodeRef={nodeRef}
       grid={grid}

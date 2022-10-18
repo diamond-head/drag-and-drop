@@ -3,6 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialStateValues = {
   cellPositions: [],
   redCellPositions: [],
+
+  storySoFarInput: {},
+  redStorySoFarInput: {},
+
   futureConfidenceInput: {},
   redCellFutureConfidenceInput: {}
 };
@@ -39,6 +43,23 @@ export const storyInfo = createSlice({
           break;
       }
     },
+    setStorySoFarInput: (state, action) => {
+      switch (action.payload.tableType) {
+        case 'GREEN':
+          state.value.storySoFarInput = {
+            ...state.value.storySoFarInput,
+            ...action.payload.input
+          };
+          break;
+        case 'RED':
+          state.value.redStorySoFarInput = {
+            ...state.value.redStorySoFarInput,
+            ...action.payload.input
+          };
+        default:
+          break;
+      }
+    },
     resetPositions: (state) => {
       state.value.cellPositions = initialStateValues.cellPositions;
       state.value.redCellPositions = initialStateValues.redCellPositions;
@@ -46,6 +67,6 @@ export const storyInfo = createSlice({
   },
 });
 
-export const { setCellPositions, resetPositions, setFuturConfidenceInput } = storyInfo.actions;
+export const { setCellPositions, resetPositions, setFuturConfidenceInput, setStorySoFarInput } = storyInfo.actions;
 
 export default storyInfo.reducer;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from "react-redux";
 import DropBoard from "../components/DropBoard";
@@ -7,7 +7,7 @@ import QualityText from "../components/QualityText";
 import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
 import {
   setCellPositions,
-  setFuturConfidenceInput
+  setStorySoFarInput
 } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
@@ -17,13 +17,23 @@ export default function ScreenTwo() {
   const storyInfo = useSelector(state => state.storyInfo)
   const dispatch = useDispatch()
 
+  const tableList = React.useMemo(() => {
+    return PRESENT_TABLE_DATA.filter((c) => {
+      const age = userInfo?.value?.clientAge
+      if (c.range[0] >= age && age <= c.range[1]) {
+        return false
+      }
+      return true
+    })
+  }, [userInfo?.value?.clientAge])
+
   const greenMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.cellPositions, 'GREEN', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.cellPositions?.length])
 
   const redMapping = React.useMemo(() => {
-    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED')
+    return getPresentAgeSlabValueMapping(storyInfo?.value?.redCellPositions, 'RED', tableList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyInfo?.value?.redCellPositions?.length])
 
@@ -32,19 +42,12 @@ export default function ScreenTwo() {
   }
 
   const handleCellPositionsChange = (input, tableType) => {
-    dispatch(setFuturConfidenceInput({ input, tableType }))
+    dispatch(setStorySoFarInput({ input, tableType }))
   }
 
   const redirectToNextScreen = () => {
     navigate('/screen3')
   }
-
-  const tableList = PRESENT_TABLE_DATA.filter((c) => {
-    if (c.range[0] >= userInfo?.value?.clientAge && userInfo?.value?.clientAge <= c.range[1]) {
-      return false
-    }
-    return true
-  })
 
   return (
     <div className="relative w-full p-4">

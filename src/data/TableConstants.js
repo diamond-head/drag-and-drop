@@ -83,7 +83,7 @@ export const PRESENT_TABLE_DATA = [
 
 export const TABLE_VALUES = [...new Array(10).fill(0)].map((_, idx) => idx + 1)
 
-export function getPresentAgeSlabValueMapping (positions, tableType) {
+export function getPresentAgeSlabValueMapping (positions, tableType, tableList) {
   const __values = {
     GREEN: [...TABLE_VALUES].reverse().map(i => i),
     RED: TABLE_VALUES
@@ -99,7 +99,7 @@ export function getPresentAgeSlabValueMapping (positions, tableType) {
       let _value = {}
       _value = { ...cellValue }
       _value.value = __values[tableType][row]
-      _value.ageId = PRESENT_TABLE_DATA[col]?.id
+      _value.ageId = tableList[col]?.id
       colMap.push(_value)
     }
     mapping.push(colMap)
