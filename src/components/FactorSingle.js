@@ -20,6 +20,7 @@ export default function FactorSingle({
   const nodeRef = React.useRef(null)
 
   const handleDrag = (e, data) => {
+    onFactorDragStart(data, id, factorId)
     setPosition(data)
   }
   
@@ -40,7 +41,7 @@ export default function FactorSingle({
 
   return (
     <Draggable
-      {...(!!newPos.x && !!newPos.y ? { position: { ...newPos } } : {})}
+      // {...(!!newPos.x && !!newPos.y ? { position: { ...newPos } } : {})}
       bounds={bounds}
       nodeRef={nodeRef}
       grid={grid}

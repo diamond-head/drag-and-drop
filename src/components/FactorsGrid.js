@@ -3,12 +3,17 @@ import FactorSingle from "./FactorSingle";
 
 export default function FactorsGrid({ data, cellPositions = [], tableType, onCellPositionsChange, columnCount }) {
   const [factorPositions, setFactorPositions] = React.useState({})
+  const [draggingFactorID, setDraggingFactorID] = React.useState(null)
+  // const [relativeCellPosition, setRelativeCellPosition] = React.useState(cellPositions)
+
   const windowScreenObject = window.document.documentElement
 
   const handleFactorDragStart = (argdata, id, factorId) => {
+    setDraggingFactorID(factorId)
     setFactorPositions((prev) => ({
       ...prev,
       [factorId]: {
+        ...prev[factorId],
         ...argdata  
       }
     }))
@@ -19,14 +24,14 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
     if (!factorX || !factorY) {
       return
     }
-  
-    const rowLength = cellPositions.length
+    const __cellPosition = factorPositions[factorId]?.relativeCellPosition
+    const rowLength = __cellPosition?.length
     let arr = []
 
     for (let row = 0; row < rowLength; row++) {
-      const colLength = cellPositions[row].length
+      const colLength = __cellPosition[row]?.length
       for (let col = 0; col < colLength; col++) {
-        const cell = cellPositions[row][col]
+        const cell = __cellPosition[row][col]
         const factorY_value = tableType === 'GREEN'
           ? factorY - (2 * ref.height)
           : factorY
@@ -95,40 +100,47 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
     ]
     const rightBoundValues = [
       (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
-      (windowScreenObject.clientWidth - ((width + 16) + (16 + (width * columnCount)))) * -1,
+      (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]
     const topBoundValues = [
-      // upperfactors + upperfactor gaps + body-padding + body-padding + lowerfactors + lowerfactors gaps 
-      // + margin + lower table header + lower table rows + center separator
-      // + upper table rows + upper table header + gaps
-      (windowScreenObject.clientHeight - ((height * 4) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
-      (windowScreenObject.clientHeight - ((height * 3) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
-      (windowScreenObject.clientHeight - ((height * 2) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
-      (windowScreenObject.clientHeight - ((height * 1) + (0 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      140 + (height - 4), 
+      140 + (height - height - 8),
+      140 + (height - height - height - 12),
+      140 + (height - height - height - height - 16),
+      // (windowScreenObject.clientHeight - ((height * 0) + (16) + (16) + (16) + (height * 10) + (56) + (height * 10) + (16)) + 1.25 + 1) * -1,
+      // (windowScreenObject.clientHeight - ((height * -1) + (16) + (16) + (16) + (height * 10) + (56) + (height * 10) + (16)) + 1.75 + 4) * -1,
+      // (windowScreenObject.clientHeight - ((height * -2) + (16) + (16) + (16) + (height * 10) + (56) + (height * 10) + (16)) + 1.75 + 8) * -1,
+      // (windowScreenObject.clientHeight - ((height * -3) + (16) + (16) + (16) + (height * 10) + (56) + (height * 10) + (16)) + 1.75 + 12) * -1
+      // (windowScreenObject.clientHeight - ((height * 4) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      // (windowScreenObject.clientHeight - ((height * 3) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      // (windowScreenObject.clientHeight - ((height * 2) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
+      // (windowScreenObject.clientHeight - ((height * 1) + (0 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)) * -1,
     ]
 
     const bottomBoundValues = topBoundValues.map(i => i + (height * 10) - (56 / 2))
 
     // RED table values
     const leftBoundValues_RED = [
-      ...leftBoundValues
+      (windowScreenObject.clientWidth - ((3 * (width + 16)))) * -1,
+      (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
     const rightBoundValues_RED = [
-      ...rightBoundValues
+      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
+      (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]
     const bottomBoundValues_RED = [
-      // Client Height -  lower factors height + lower factors gaps + body-padding + body-padding + upper factros height + upper factros gaps 
-      // + upper table rows height + separator height + lower table rows height + loewer table header + gaps
-      (windowScreenObject.clientHeight - ((height * 0) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
-      (windowScreenObject.clientHeight - ((height * 1) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
-      (windowScreenObject.clientHeight - ((height * 2) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
-      (windowScreenObject.clientHeight - ((height * 3) + (4 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4))
+      -166 + (height + height + height + height + 16),
+      -166 + (height + height + height + 12),
+      -166 + (height + height + 8),
+      -166 + (height + 4),
+      // (windowScreenObject.clientHeight - ((height * 0) + (1 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      // (windowScreenObject.clientHeight - ((height * 1) + (2 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      // (windowScreenObject.clientHeight - ((height * 2) + (3 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4)),
+      // (windowScreenObject.clientHeight - ((height * 3) + (4 * 4) + (16) + (16) + (height * 4) + (3 * 4) + 16 + (height * 10) + 56 + (height * 12)) + (3 * 4))
     ]
-    // bottom value + table row height - center separtor height - lower factor gap
     const topBoundValues_RED = bottomBoundValues_RED.map(i => (Math.abs(i) + (height * 10) - (56 / 2) - 4) * -1)
-
-    return data.map((item, index) => {
-      const { x, y } = factorPositions[item.factorId] || {}
+    let __factorPositions = { ...factorPositions }
+    const result = data.map((item, index) => {
       const boundsMaster = {
         GREEN: {
           left: leftBoundValues[item.colIndex],
@@ -144,31 +156,63 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
         }
       }
 
-      const tempFactorPos = { ...factorPositions[item.factorId] }
-      // const { height } = factorPositions[item.factorId]?.node?.getBoundingClientRect() || {}
-      tempFactorPos.height = 27
-      const pos = handleFactorDrag(tempFactorPos, item.factorId, false)
-      console.log(pos)
+      const __cellPositions = [...cellPositions]
+      const newCellPositions = []
+      const boundX = boundsMaster[tableType]?.left
+      const boundY = boundsMaster[tableType]?.top
+      __cellPositions.forEach((row, rowIndex) => {
+        const updatedRow = []
+        row.forEach((col, colIndex) => {
+          const newCol = {
+            x: boundX + (width * rowIndex),
+            y: boundY + (height * colIndex)
+          }
+          updatedRow.push(newCol)
+        })
+        newCellPositions.push(updatedRow)
+      })
+
+      __factorPositions = {
+        ...__factorPositions,
+        [item.factorId]: {
+          ...__factorPositions[item.factorId],
+          relativeCellPosition: newCellPositions
+        }
+      }
+
       return {
         ...item,
         bounds: boundsMaster[tableType],
         width,
         height,
-        position: {
-          x,
-          y
-        },
         grid: [width, height]
       }
     })
+
+    setFactorPositions((prev) => ({
+      ...prev,
+      ...__factorPositions
+    }))
+
+    return result
   }
 
   const factorsData = React.useMemo(() => {
-    return processFactorBound()
+    if (cellPositions && cellPositions?.length > 0) {
+      return processFactorBound()
+    }
+    return []
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cellPositions, factorPositions])
+  }, [cellPositions?.length])
 
-  if (factorsData.length === 0) return null
+  if (factorsData?.length === 0) return null
+
+  // const tempFactorPos = { ...(!!factorPositions[draggingFactorID] ? { ...factorPositions[draggingFactorID] } : {}) }
+  // const { x, y } = tempFactorPos
+  // const { height: tempHeight, x: nodeX, y: nodeY } = tempFactorPos?.node?.getBoundingClientRect() || {}
+  // console.log(x, y, nodeX, nodeY, draggingFactorID)
+  // tempFactorPos.height = tempHeight
+  // const updatedPosition = { x, y }
 
   return (
     <div>
@@ -183,7 +227,7 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             background={item.background}
             text={item.text}
             positionOffset={item.posOffset}
-            updatedPosition={item.position}
+            updatedPosition={{}}
             defaultPosition={item.defaultPosition}
             grid={item.grid}
             bounds={item.bounds}
