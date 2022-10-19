@@ -93,6 +93,7 @@ export default function ScreenTwo() {
             tableType={'RED'} 
             cellPositions={redMapping} 
             data={FactorItemsRed} 
+            onFactorInputChange={handleFactorInputChange}
             onCellPositionsChange={handleCellPositionsChange} 
           />
         </div>

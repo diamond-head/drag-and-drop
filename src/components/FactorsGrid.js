@@ -56,6 +56,8 @@ export default function FactorsGrid({
     let closestCellToFactor = null
     let closestCellToFactorRow = -1
     let closestCellToFactorCol = -1
+    let cellWidth = 0
+    let cellHeight = 0
     let minimum = Number.MAX_SAFE_INTEGER
 
     let shouldBreak = false
@@ -70,6 +72,8 @@ export default function FactorsGrid({
           closestCellCol = col
           shouldBreak = true
           closestCellToFactor = null
+          cellWidth = cell.width
+          cellHeight = cell.height
           break
         } else {
           const dist = calculateDistance(
@@ -91,6 +95,8 @@ export default function FactorsGrid({
             closestCell = closestCellToFactor
             closestCellRow = closestCellToFactorRow
             closestCellCol = closestCellToFactorCol
+            cellWidth = closestCellToFactor.width
+            cellHeight = closestCellToFactor.height
           }
         }
       }
@@ -148,7 +154,9 @@ export default function FactorsGrid({
         relativeX: refX,
         relativeY: refY,
         factorX,
-        factorY
+        factorY,
+        width: cellWidth,
+        height: cellHeight
       }
     ]
     onChange && onCellPositionsChange(inputPositions, tableType)
@@ -178,7 +186,7 @@ export default function FactorsGrid({
       (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
     const rightBoundValues = [
-      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
+      (windowScreenObject.clientWidth - ((3 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]
@@ -198,7 +206,6 @@ export default function FactorsGrid({
     ]
 
     const bottomBoundValues = topBoundValues.map(i => i + (height * 10) - (56 / 2))
-
     // RED table values
     const leftBoundValues_RED = [
       (windowScreenObject.clientWidth - ((4 * (width + 16)))) * -1,
@@ -206,7 +213,7 @@ export default function FactorsGrid({
       (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
     const rightBoundValues_RED = [
-      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
+      (windowScreenObject.clientWidth - ((3 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]

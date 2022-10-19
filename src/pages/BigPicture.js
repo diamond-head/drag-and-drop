@@ -26,6 +26,16 @@ export default function BigPicture() {
       const storySoFarFactorsInputTexts = storyInfo?.value?.storySoFarFactorsInputTexts
       const futureConfidenceFactorInputTexts = storyInfo?.value?.futureConfidenceFactorInputTexts
 
+      const userAge = userInfo?.value?.clientAge
+      const firstHalfColumnCount = PRESENT_TABLE_DATA.filter(i => {
+        if (i.range[0] >= userAge && userAge <= i.range[1]) {
+          return false
+        }
+        return true
+      })?.length
+
+      const indexToAdd = firstHalfColumnCount
+
       let mergedValues = Object.keys(storySoFarInputs).reduce((acc, c) => {
         const obb = { ...storySoFarInputs[c] }
         const arr = Object.keys(obb).reduce((_acc, _c) => {
@@ -38,7 +48,13 @@ export default function BigPicture() {
       mergedValues = Object.keys(futureConfidenceInput).reduce((acc, c) => {
         const obb = { ...futureConfidenceInput[c] }
         const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [..._acc, obb[_c]]
+          return [
+            ..._acc, 
+            { 
+              ...obb[_c], 
+              relativeX: obb[_c]?.relativeX + (obb[_c]?.width * firstHalfColumnCount) 
+            }
+          ]
         }, [])
         acc = [...acc, ...arr]
         return acc
@@ -56,7 +72,13 @@ export default function BigPicture() {
       mergedValuesRed = Object.keys(redCellFutureConfidenceInput).reduce((acc, c) => {
         const obb = { ...redCellFutureConfidenceInput[c] }
         const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [..._acc, obb[_c]]
+          return [
+            ..._acc, 
+            { 
+              ...obb[_c], 
+              relativeX: obb[_c]?.relativeX + (obb[_c]?.width * firstHalfColumnCount) 
+            }
+          ]
         }, [])
         acc = [...acc, ...arr]
         return acc
@@ -78,29 +100,6 @@ export default function BigPicture() {
               .fill({})
           ])
       ]
-   
-      const userAge = userInfo?.value?.clientAge
-      const firstHalfColumnCount = PRESENT_TABLE_DATA.filter(i => {
-        if (i.range[0] >= userAge && userAge <= i.range[1]) {
-          return false
-        }
-        return true
-      })?.length
-
-      const indexToAdd = firstHalfColumnCount
-      // const __factorItemsGreen = FactorItemsGreen.map(i => {
-      //   return {
-      //     ...i,
-      //     text: storySoFarFactorsInputTexts[i.factorId]
-      //   }
-      // })
-
-      // const __factorItemsRed = FactorItemsRed.map(i => {
-      //   return {
-      //     ...i,
-      //     text: storySoFarFactorsInputTexts[i.factorId]
-      //   }
-      // })
 
       mergedValues.forEach((m) => {
         const factor = FactorItemsGreen.find(i => m.factorId === i.factorId)
@@ -112,25 +111,20 @@ export default function BigPicture() {
 
         if (m.from === 'PRESENT') { 
           if (factor.isInput) {
-            __obj.factor = {
-              ...factor,
-              text: storySoFarFactorsInputTexts[factor.factorId]
-            }
+            __obj.text = storySoFarFactorsInputTexts[factor.factorId]
           }
 
           grid[m.row][m.col] = __obj
         } else {
           if (factor.isInput) {
-            __obj.factor = {
-              ...factor,
-              text: futureConfidenceFactorInputTexts[factor.factorId]
-            }
+            __obj.text = futureConfidenceFactorInputTexts[factor.factorId]
           }
 
-          grid[m.row][m.col + indexToAdd] = { 
-            ...m, 
-            ...factor, 
-            ...cellPositions[m.row][m.col + indexToAdd],
+          if ((m.col + (indexToAdd - 1)) < cellPositions[m.row].length) {
+            grid[m.row][m.col + (indexToAdd - 1)] = { 
+              ...__obj,
+              ...cellPositions[m.row][m.col + (indexToAdd - 1)],
+            }
           }
         }
       })
@@ -142,37 +136,30 @@ export default function BigPicture() {
           ...factor,
           ...redCellPositions[m.row][m.col],
         }
-
         if (m.from === 'PRESENT') {
           if (factor.isInput) {
-            __obj.factor = {
-              ...factor,
-              text: storySoFarFactorsInputTexts[factor.factorId]
-            }
+            __obj.text = storySoFarFactorsInputTexts[factor.factorId]
           }
-          grid[m.row][m.col] = __obj
+          gridRed[m.row][m.col] = __obj
         } else {
           if (factor.isInput) {
-            __obj.factor = {
-              ...factor,
-              text: futureConfidenceFactorInputTexts[factor.factorId]
-            }
+            __obj.text = futureConfidenceFactorInputTexts[factor.factorId] 
           }
 
-          grid[m.row][m.col + indexToAdd] = {
-            __obj,
-            ...redCellPositions[m.row][m.col + indexToAdd]
+          if ((m.col + (indexToAdd - 1)) < redCellPositions[m.row].length) {
+            gridRed[m.row][m.col + (indexToAdd - 1)] = {
+              ...__obj,
+              ...redCellPositions[m.row][m.col + (indexToAdd - 1)]
+            }
           }
         }
       })
-      
       const ageIndex = PRESENT_TABLE_DATA.findIndex(i => {
         if (i.range[0] >= userAge && userAge <= i.range[1]) {
           return true
         }
         return false
       })
-
       const ageFound = cellPositions.length > 0 ? cellPositions[0][ageIndex || 0] : undefined
       return { GREEN: grid, RED: gridRed, agePosition: ageFound }
   }
@@ -184,7 +171,11 @@ export default function BigPicture() {
     storyInfo?.value?.storySoFarInput,
     storyInfo?.value?.redStorySoFarInput,
     storyInfo?.value?.futureConfidenceInput,
-    storyInfo?.value?.redCellFutureConfidenceInput
+    storyInfo?.value?.redCellFutureConfidenceInput,
+    storyInfo?.value?.cellPositions,
+    storyInfo?.value?.redCellPositions,
+    storyInfo?.value?.storySoFarFactorsInputTexts,
+    storyInfo?.value?.futureConfidenceFactorInputTexts
   ])
 
   const { x, width } = summaryData?.agePosition || {}
@@ -200,7 +191,7 @@ export default function BigPicture() {
         cell
         summaryData={summaryData}
         tableList={PRESENT_TABLE_DATA}
-        arrowPos={{ position: 'BOTTOM', value: [(x && width) ? (x + (width / 2)) : 'auto'] }}
+        arrowPos={{ hide: !x && true, position: 'BOTTOM', value: [(x && width) ? (x - (width / 2)) : 'auto'] }}
         onRecordCellPositions={onRecordCellPositions} 
       />
     </div>
