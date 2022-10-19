@@ -10,12 +10,15 @@ export default function FactorSingle({
   height,
   width,
   factorId,
-  // position,
-  // positionOffset,
+  inputFactor,
+  tableType,
+  border,
   updatedPosition,
   onFactorDragStop,
-  onFactorDragStart
+  onFactorDragStart,
+  onFactorInputChange
 }) {
+  const [inputText, setInputText] = React.useState('')
   const [position, setPosition] = React.useState({})
   const nodeRef = React.useRef(null)
 
@@ -36,6 +39,11 @@ export default function FactorSingle({
     onFactorDragStop(data, boundObject, factorId)
   }
 
+  const handleFactorInputChange = (e) => {
+    setInputText(e.target.value)
+    onFactorInputChange(e.target.value, factorId, tableType)
+  }
+
   const newPos = (!!updatedPosition && !!updatedPosition.x && !!updatedPosition.y) ? updatedPosition : null
 
   return (
@@ -50,12 +58,18 @@ export default function FactorSingle({
     >
       <div
         ref={nodeRef}
-        className={`${background} flex justify-center text-center cursor-move handler-${id}`}
+        className={`${background} flex justify-center text-center cursor-move handler-${background}-${id}`}
         style={{ width, height }}
       >
-        <span className="text-white text-xs">
-          {text}
-        </span>
+        {inputFactor ? (
+          <span className="text-xs">
+            <input style={{ width, height }} type="text" onChange={handleFactorInputChange} value={inputText} className={`p-1 border ${border}`} />
+          </span>
+        ): (
+          <span className="text-white text-xs">
+            {text}
+          </span>
+        )}
       </div>
     </Draggable>
   );

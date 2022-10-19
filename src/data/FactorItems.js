@@ -16,6 +16,16 @@ export const FactorItemsGreen = [
     colIndex: 1
   },
   {
+    isInput: true,
+    id: 9,
+    factorId: 'GI',
+    text: "",
+    background: "bg-green-900",
+    borderColor: 'border-green-900',
+    rowIndex: 0,
+    colIndex: 2
+  },
+  {
     id: 1,
     factorId: 'GB',
     text: "Factor B",
@@ -30,6 +40,16 @@ export const FactorItemsGreen = [
     background: "bg-green-700",
     rowIndex: 1,
     colIndex: 1
+  },
+  {
+    id: 10,
+    isInput: true,
+    factorId: 'GJ',
+    text: "",
+    background: "bg-green-700",
+    borderColor: 'border-green-700',
+    rowIndex: 1,
+    colIndex: 2
   },
   {
     id: 2,
@@ -48,6 +68,16 @@ export const FactorItemsGreen = [
     colIndex: 1,
   },
   {
+    id: 11,
+    isInput: true,
+    factorId: 'GK',
+    text: "",
+    background: "bg-green-500",
+    borderColor: 'border-green-500',
+    rowIndex: 2,
+    colIndex: 2
+  },
+  {
     id: 3,
     factorId: 'GD',
     text: "Factor D",
@@ -62,6 +92,16 @@ export const FactorItemsGreen = [
     background: "bg-green-300",
     rowIndex: 3,
     colIndex: 1,
+  },
+  {
+    id: 12,
+    isInput: true,
+    factorId: 'GL',
+    text: "",
+    borderColor: 'border-green-300',
+    background: "bg-green-300",
+    rowIndex: 3,
+    colIndex: 2
   },
 ];
 
@@ -83,6 +123,16 @@ export const FactorItemsRed = [
     colIndex: 1
   },
   {
+    id: 9,
+    isInput: true,
+    factorId: 'RI',
+    text: "",
+    borderColor: 'border-red-900',
+    background: "bg-red-900",
+    rowIndex: 0,
+    colIndex: 2
+  },
+  {
     id: 3,
     factorId: 'RB',
     text: "Factor B",
@@ -97,6 +147,16 @@ export const FactorItemsRed = [
     background: "bg-red-700",
     rowIndex: 1,
     colIndex: 1
+  },
+  {
+    id: 10,
+    isInput: true,
+    factorId: 'RJ',
+    text: "",
+    borderColor: 'border-red-700',
+    background: "bg-red-700",
+    rowIndex: 1,
+    colIndex: 2
   },
   {
     id: 5,
@@ -115,6 +175,16 @@ export const FactorItemsRed = [
     colIndex: 1
   },
   {
+    id: 11,
+    isInput: true,
+    factorId: 'RK',
+    text: "",
+    borderColor: 'border-red-500',
+    background: "bg-red-500",
+    rowIndex: 2,
+    colIndex: 2
+  },
+  {
     id: 7,
     factorId: 'RD',
     text: "Factor D",
@@ -129,5 +199,15 @@ export const FactorItemsRed = [
     background: "bg-red-300",
     rowIndex: 3,
     colIndex: 1
+  },
+  {
+    id: 12,
+    isInput: true,
+    factorId: 'RL',
+    text: "",
+    borderColor: 'border-red-300',
+    background: "bg-red-300",
+    rowIndex: 3,
+    colIndex: 2
   },
 ];

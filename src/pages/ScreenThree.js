@@ -5,7 +5,7 @@ import DropBoard from "../components/DropBoard";
 import FactorsGrid from "../components/FactorsGrid";
 import QualityText from "../components/QualityText";
 import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
-import { setFuturConfidenceInput, setFutureCellPositions } from '../store/features/storyInfo'
+import { setFuturConfidenceInput, setFutureCellPositions, setFutureConfidenceFactorsInput } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
 export default function ScreenThree() {
@@ -46,6 +46,10 @@ export default function ScreenThree() {
   const handleCellPositionsChange = (input, tableType) => {
     dispatch(setFuturConfidenceInput({ input, tableType }))
   }
+  
+  const handleFactorInputChange = (input, factorId, tableType) => {
+    dispatch(setFutureConfidenceFactorsInput({ input, factorId, tableType }))
+  }
 
   const redirectToNextScreen = () => {
     navigate('/big-picture')
@@ -67,6 +71,7 @@ export default function ScreenThree() {
             cellPositions={greenMapping} 
             data={FactorItemsGreen} 
             onCellPositionsChange={handleCellPositionsChange}
+            onFactorInputChange={handleFactorInputChange}
           />
         </div>
       </div>
@@ -87,6 +92,7 @@ export default function ScreenThree() {
             cellPositions={redMapping} 
             data={FactorItemsRed} 
             onCellPositionsChange={handleCellPositionsChange} 
+            onFactorInputChange={handleFactorInputChange}
           />
         </div>
       </div>

@@ -1,10 +1,33 @@
 import React from "react";
 import FactorSingle from "./FactorSingle";
 
-export default function FactorsGrid({ data, cellPositions = [], tableType, onCellPositionsChange, columnCount }) {
+export default function FactorsGrid({ 
+  data, 
+  cellPositions = [], 
+  tableType, 
+  columnCount,
+  onCellPositionsChange,
+  onFactorInputChange
+}) {
   const windowScreenObject = window.document.documentElement
   const [factorPositions, setFactorPositions] = React.useState({})
   const [updateFactorPositions, setUpdateFactorPositions] = React.useState({})
+  const [filledGrid, setFilledGrid] = React.useState([])
+
+  React.useEffect(() => {
+    if (cellPositions.length > 0) {
+      const grid = []
+      for (let row = 0; row < cellPositions.length; row++) {
+        const colN = cellPositions[row].length
+        const columns = []
+        for (let col = 0; col < colN; col++) {
+          columns.push('')
+        }
+        grid.push(columns)
+      }
+      setFilledGrid(grid)
+    }
+  }, [cellPositions])
 
   const handleFactorDragStart = (argdata, id, factorId) => {
     setFactorPositions((prev) => ({
@@ -28,36 +51,25 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
     const rowLength = __cellPosition?.length
 
     let closestCell = {}
-    let closestCellRow = 0
-    let closestCellCol = 0
+    let closestCellRow = -1
+    let closestCellCol = -1
     let closestCellToFactor = null
-    let closestCellToFactorRow = 0
-    let closestCellToFactorCol = 0
+    let closestCellToFactorRow = -1
+    let closestCellToFactorCol = -1
     let minimum = Number.MAX_SAFE_INTEGER
 
-    let isFound = false
+    let shouldBreak = false
+
     for (let row = 0; row < rowLength; row++) {
       const colLength = __cellPosition[row]?.length
       for (let col = 0; col < colLength; col++) {
         const cell = __cellPosition[row][col]
-        if ((cell.x === factorX) && (cell.y === factorY)) {
+        if ((cell.x === factorX) && (cell.y === factorY) && filledGrid[row][col] === '') {
           closestCell = cell
           closestCellRow = row
           closestCellCol = col
-          isFound = true
+          shouldBreak = true
           closestCellToFactor = null
-          if (!!cell?.x && !!cell?.y) {
-            // eslint-disable-next-line no-loop-func
-            setUpdateFactorPositions((prev) => ({
-              ...prev,
-              [factorId]: {
-                ...prev[factorId],
-                x: cell?.x,
-                y: cell?.y,
-                isCellFilled: true
-              }
-            }))
-          }
           break
         } else {
           const dist = calculateDistance(
@@ -69,7 +81,7 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             col
           )
           const res = Math.min(minimum, dist.distance)
-          if (res === dist.distance) {
+          if (res === dist.distance && filledGrid[dist.row][dist.col] === '') {
             closestCellToFactor = __cellPosition[dist.row][dist.col]
             closestCellToFactorRow = dist.row
             closestCellToFactorCol = dist.col
@@ -79,23 +91,51 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             closestCell = closestCellToFactor
             closestCellRow = closestCellToFactorRow
             closestCellCol = closestCellToFactorCol
-            // eslint-disable-next-line no-loop-func
-            setUpdateFactorPositions((prev) => ({
-              ...prev,
-              [factorId]: {
-                ...prev[factorId],
-                x: closestCellToFactor?.x,
-                y: closestCellToFactor?.y,
-                isCellFilled: true
-              }
-            }))
           }
         }
       }
-      if (isFound) {
+
+      if (shouldBreak) {
         break
       }
     }
+
+    let __filledGrid = [...filledGrid]
+    if (updateFactorPositions[factorId]) {
+      const prevFilledRow = updateFactorPositions[factorId]?.row
+      const prevFilledCol = updateFactorPositions[factorId]?.col
+      if (
+        (typeof prevFilledRow !== 'undefined' && typeof prevFilledCol !== 'undefined') &&
+        (closestCellRow > -1 && closestCellCol > -1) &&
+        (prevFilledRow > -1 && prevFilledCol > -1)
+        ) {
+        if (closestCellRow === prevFilledRow && closestCellCol !== prevFilledCol) {
+          __filledGrid[prevFilledRow][prevFilledCol] = ''
+        } else if (closestCellRow !== prevFilledRow && closestCellCol === prevFilledCol) {
+          __filledGrid[prevFilledRow][prevFilledCol] = ''
+        } else if (closestCellRow !== prevFilledRow && closestCellCol !== prevFilledCol) {
+          __filledGrid[prevFilledRow][prevFilledCol] = ''
+          setFilledGrid(__filledGrid)
+        }
+      }
+    }
+
+    if (closestCellRow > -1 && closestCellCol > -1) {
+      __filledGrid[closestCellRow][closestCellCol] = factorId
+      setFilledGrid(__filledGrid)
+    }
+
+    setUpdateFactorPositions((prev) => ({
+      ...prev,
+      [factorId]: {
+        ...prev[factorId],
+        row: closestCellRow,
+        col: closestCellCol,
+        x: closestCell?.x,
+        y: closestCell?.y,
+        isCellFilled: true
+      }
+    }))
 
     const inputPositions = [
       closestCell.ageId,
@@ -133,10 +173,12 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
 
     // GREEN table values
     const leftBoundValues = [
+      (windowScreenObject.clientWidth - ((4 * (width + 16)))) * -1,
       (windowScreenObject.clientWidth - ((3 * (width + 16)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
     const rightBoundValues = [
+      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]
@@ -159,10 +201,12 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
 
     // RED table values
     const leftBoundValues_RED = [
+      (windowScreenObject.clientWidth - ((4 * (width + 16)))) * -1,
       (windowScreenObject.clientWidth - ((3 * (width + 16)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)))) * -1
     ]
     const rightBoundValues_RED = [
+      (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((2 * (width + 16)) + (16 + (width * columnCount)))) * -1,
       (windowScreenObject.clientWidth - ((1 * (width + 16)) + (16 + (width * columnCount)))) * -1,
     ]
@@ -248,14 +292,16 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
 
   return (
     <div>
-      <div className="handler grid grid-cols-2 gap-x-4 gap-y-1 bg-green">
+      <div className="handler grid grid-cols-3 gap-x-4 gap-y-1 bg-green">
         {factorsData.map((item, index) => (
           <FactorSingle
             id={index}
+            inputFactor={item.isInput}
             key={index}
             factorId={item.factorId}
             height={item.height}
             width={item.width}
+            border={item.borderColor}
             background={item.background}
             text={item.text}
             positionOffset={item.posOffset}
@@ -263,8 +309,10 @@ export default function FactorsGrid({ data, cellPositions = [], tableType, onCel
             defaultPosition={item.defaultPosition}
             grid={item.grid}
             bounds={item.bounds}
+            tableType={tableType}
             onFactorDragStop={handleFactorDrag}
             onFactorDragStart={handleFactorDragStart}
+            onFactorInputChange={onFactorInputChange}
           />
         ))}
       </div>

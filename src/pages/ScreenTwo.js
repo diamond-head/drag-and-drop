@@ -7,7 +7,8 @@ import QualityText from "../components/QualityText";
 import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
 import {
   setCellPositions,
-  setStorySoFarInput
+  setStorySoFarInput,
+  setStorySoFarFactorsInput
 } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
@@ -18,9 +19,9 @@ export default function ScreenTwo() {
   const dispatch = useDispatch()
 
   const tableList = React.useMemo(() => {
+    const age = userInfo?.value?.clientAge
     return PRESENT_TABLE_DATA.filter((c) => {
-      const age = userInfo?.value?.clientAge
-      if (c.range[0] >= age && age <= c.range[1]) {
+      if (c.range[0] > age && age <= c.range[1]) {
         return false
       }
       return true
@@ -48,6 +49,10 @@ export default function ScreenTwo() {
     dispatch(setStorySoFarInput({ input, tableType }))
   }
 
+  const handleFactorInputChange = (input, factorId, tableType) => {
+    dispatch(setStorySoFarFactorsInput({ input, factorId, tableType }))
+  }
+
   const redirectToNextScreen = () => {
     navigate('/screen3')
   }
@@ -66,7 +71,8 @@ export default function ScreenTwo() {
             columnCount={tableList.length}
             tableType={'GREEN'}
             cellPositions={greenMapping} 
-            data={FactorItemsGreen} 
+            data={FactorItemsGreen}
+            onFactorInputChange={handleFactorInputChange}
             onCellPositionsChange={handleCellPositionsChange}
           />
         </div>

@@ -9,7 +9,7 @@ export default function ArrowCenter({
   if (arrowPos?.position === 'BOTTOM') {
     return (
       <div className="my-4">
-        <div style={{ position: 'absolute', bottom: '-20%', left: arrowPos.value[0] }}>
+        <div style={{ position: 'absolute', bottom: '-20%', left: arrowPos?.value[0] }}>
           <div className="my-2">
             <div className="h-0 w-0 border-x-4 border-x-transparent border-b-[12px]"></div>
             <div className="h-[100px] border-2 w-[2px]" style={{marginLeft: 2, height: 200}}></div>

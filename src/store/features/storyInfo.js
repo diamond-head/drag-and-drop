@@ -11,7 +11,10 @@ const initialStateValues = {
   redStorySoFarInput: {},
 
   futureConfidenceInput: {},
-  redCellFutureConfidenceInput: {}
+  redCellFutureConfidenceInput: {},
+
+  storySoFarFactorsInputTexts: {},
+  futureConfidenceFactorInputTexts: {}
 };
 
 export const storyInfo = createSlice({
@@ -164,6 +167,46 @@ export const storyInfo = createSlice({
           break;
       }
     },
+    setStorySoFarFactorsInput: (state, action) => {
+      switch (action.payload.tableType) {
+        case 'GREEN': {
+          state.value.storySoFarFactorsInputTexts = {
+            ...state.value.storySoFarFactorsInputTexts,
+            [action.payload.factorId]: action.payload.input
+          }
+          break
+        }
+        case 'RED': {
+          state.value.storySoFarFactorsInputTexts = {
+            ...state.value.storySoFarFactorsInputTexts,
+            [action.payload.factorId]: action.payload.input
+          }
+          break
+        }
+        default:
+          break
+      }
+    },
+    setFutureConfidenceFactorsInput: (state, action) => {
+      switch (action.payload.tableType) {
+        case 'GREEN': {
+          state.value.futureConfidenceFactorInputTexts = {
+            ...state.value.futureConfidenceFactorInputTexts,
+            [action.payload.factorId]: action.payload.input
+          }
+          break
+        }
+        case 'RED': {
+          state.value.futureConfidenceFactorInputTexts = {
+            ...state.value.futureConfidenceFactorInputTexts,
+            [action.payload.factorId]: action.payload.input
+          }
+          break
+        }
+        default:
+          break
+      }
+    },
     resetPositions: (state) => {
       state.value.cellPositions = initialStateValues.cellPositions;
       state.value.redCellPositions = initialStateValues.redCellPositions;
@@ -176,7 +219,9 @@ export const {
   resetPositions, 
   setFuturConfidenceInput, 
   setStorySoFarInput, 
-  setFutureCellPositions 
+  setFutureCellPositions,
+  setStorySoFarFactorsInput,
+  setFutureConfidenceFactorsInput
 } = storyInfo.actions;
 
 export default storyInfo.reducer;

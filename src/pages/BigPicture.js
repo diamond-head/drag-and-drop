@@ -23,7 +23,9 @@ export default function BigPicture() {
       const redCellFutureConfidenceInput = storyInfo?.value?.redCellFutureConfidenceInput
       const cellPositions = storyInfo?.value?.cellPositions
       const redCellPositions = storyInfo?.value?.redCellPositions
-  
+      const storySoFarFactorsInputTexts = storyInfo?.value?.storySoFarFactorsInputTexts
+      const futureConfidenceFactorInputTexts = storyInfo?.value?.futureConfidenceFactorInputTexts
+
       let mergedValues = Object.keys(storySoFarInputs).reduce((acc, c) => {
         const obb = { ...storySoFarInputs[c] }
         const arr = Object.keys(obb).reduce((_acc, _c) => {
@@ -84,44 +86,95 @@ export default function BigPicture() {
         }
         return true
       })?.length
-  
+
       const indexToAdd = firstHalfColumnCount
+      // const __factorItemsGreen = FactorItemsGreen.map(i => {
+      //   return {
+      //     ...i,
+      //     text: storySoFarFactorsInputTexts[i.factorId]
+      //   }
+      // })
+
+      // const __factorItemsRed = FactorItemsRed.map(i => {
+      //   return {
+      //     ...i,
+      //     text: storySoFarFactorsInputTexts[i.factorId]
+      //   }
+      // })
 
       mergedValues.forEach((m) => {
         const factor = FactorItemsGreen.find(i => m.factorId === i.factorId)
-        if (m.from === 'PRESENT') {
-          console.log(cellPositions[m.row][m.col])
-          grid[m.row][m.col] = { 
-            ...m,
-            ...factor,
-            ...cellPositions[m.row][m.col],
-            // ...(
-            //   cellPositions[m.row][m.col]?.x && cellPositions[m.row][m.col]?.width ? 
-            //   {  x: cellPositions[m.row][m.col]?.x - (cellPositions[m.row][m.col]?.width) } 
-            //   : {}
-            // )
+        let __obj = { 
+          ...m,
+          ...factor,
+          ...cellPositions[m.row][m.col],
+        }
+
+        if (m.from === 'PRESENT') { 
+          if (factor.isInput) {
+            __obj.factor = {
+              ...factor,
+              text: storySoFarFactorsInputTexts[factor.factorId]
+            }
           }
+
+          grid[m.row][m.col] = __obj
         } else {
+          if (factor.isInput) {
+            __obj.factor = {
+              ...factor,
+              text: futureConfidenceFactorInputTexts[factor.factorId]
+            }
+          }
+
           grid[m.row][m.col + indexToAdd] = { 
             ...m, 
             ...factor, 
             ...cellPositions[m.row][m.col + indexToAdd],
-            // x: cellPositions[m.row][m.col + indexToAdd]?.x - (cellPositions[m.row][m.col + indexToAdd]?.width)
-          }
-        }
-      })
-      mergedValuesRed.forEach((m) => {
-        const factor = FactorItemsRed.find(i => m.factorId === i.factorId)
-        if (m.from === 'PRESENT') {
-          grid[m.row][m.col] = { ...m, ...factor, ...redCellPositions[m.row][m.col] }
-        } else {
-          grid[m.row][m.col + indexToAdd] = { 
-            ...m, ...factor, ...redCellPositions[m.row][m.col + indexToAdd]
           }
         }
       })
 
-      return { GREEN: grid, RED: gridRed }
+      mergedValuesRed.forEach((m) => {
+        const factor = FactorItemsRed.find(i => m.factorId === i.factorId)
+        let __obj = { 
+          ...m,
+          ...factor,
+          ...redCellPositions[m.row][m.col],
+        }
+
+        if (m.from === 'PRESENT') {
+          if (factor.isInput) {
+            __obj.factor = {
+              ...factor,
+              text: storySoFarFactorsInputTexts[factor.factorId]
+            }
+          }
+          grid[m.row][m.col] = __obj
+        } else {
+          if (factor.isInput) {
+            __obj.factor = {
+              ...factor,
+              text: futureConfidenceFactorInputTexts[factor.factorId]
+            }
+          }
+
+          grid[m.row][m.col + indexToAdd] = {
+            __obj,
+            ...redCellPositions[m.row][m.col + indexToAdd]
+          }
+        }
+      })
+      
+      const ageIndex = PRESENT_TABLE_DATA.findIndex(i => {
+        if (i.range[0] >= userAge && userAge <= i.range[1]) {
+          return true
+        }
+        return false
+      })
+
+      const ageFound = cellPositions.length > 0 ? cellPositions[0][ageIndex || 0] : undefined
+      return { GREEN: grid, RED: gridRed, agePosition: ageFound }
   }
 
   const summaryData = React.useMemo(() => {
@@ -134,6 +187,8 @@ export default function BigPicture() {
     storyInfo?.value?.redCellFutureConfidenceInput
   ])
 
+  const { x, width } = summaryData?.agePosition || {}
+
   return (
     <div className="relative w-full p-4">
       <div className="flex justify-between">
@@ -145,7 +200,7 @@ export default function BigPicture() {
         cell
         summaryData={summaryData}
         tableList={PRESENT_TABLE_DATA}
-        arrowPos={{ position: 'BOTTOM', value: [140] }}
+        arrowPos={{ position: 'BOTTOM', value: [(x && width) ? (x + (width / 2)) : 'auto'] }}
         onRecordCellPositions={onRecordCellPositions} 
       />
     </div>
