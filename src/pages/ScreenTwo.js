@@ -8,7 +8,8 @@ import { FactorItemsGreen, FactorItemsRed } from "../data/FactorItems";
 import {
   setCellPositions,
   setStorySoFarInput,
-  setStorySoFarFactorsInput
+  setStorySoFarFactorsInput,
+  setStorySoFarGrid
 } from '../store/features/storyInfo'
 import { getPresentAgeSlabValueMapping, PRESENT_TABLE_DATA } from '../data/TableConstants'
 
@@ -53,6 +54,11 @@ export default function ScreenTwo() {
     dispatch(setStorySoFarFactorsInput({ input, factorId, tableType }))
   }
 
+  const handleGridChange = (input, tableType) => {
+    // console.log(input, tableType)
+    dispatch(setStorySoFarGrid({ input, tableType }))
+  }
+
   const redirectToNextScreen = () => {
     navigate('/screen3')
   }
@@ -74,6 +80,7 @@ export default function ScreenTwo() {
             data={FactorItemsGreen}
             onFactorInputChange={handleFactorInputChange}
             onCellPositionsChange={handleCellPositionsChange}
+            onGridChange={handleGridChange}
           />
         </div>
       </div>
@@ -94,7 +101,8 @@ export default function ScreenTwo() {
             cellPositions={redMapping} 
             data={FactorItemsRed} 
             onFactorInputChange={handleFactorInputChange}
-            onCellPositionsChange={handleCellPositionsChange} 
+            onCellPositionsChange={handleCellPositionsChange}
+            onGridChange={handleGridChange}
           />
         </div>
       </div>

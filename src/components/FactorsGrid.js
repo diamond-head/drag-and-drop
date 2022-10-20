@@ -7,7 +7,8 @@ export default function FactorsGrid({
   tableType, 
   columnCount,
   onCellPositionsChange,
-  onFactorInputChange
+  onFactorInputChange,
+  onGridChange,
 }) {
   const windowScreenObject = window.document.documentElement
   const [factorPositions, setFactorPositions] = React.useState({})
@@ -159,6 +160,8 @@ export default function FactorsGrid({
         height: cellHeight
       }
     ]
+
+    onChange && onGridChange(__filledGrid, tableType)
     onChange && onCellPositionsChange(inputPositions, tableType)
   }
 

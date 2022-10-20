@@ -84,7 +84,7 @@ export default function RedTable({
                 {Object.keys(col).length > 0 && (
                   <div style={{
                     position: 'absolute',
-                    top: col.relativeY,
+                    top: (col.relativeY),
                     left: col.relativeX,
                     height: data.height,
                     width: data.width

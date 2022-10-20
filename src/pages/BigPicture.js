@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DropBoard from "../components/DropBoard";
-// import FactorsGrid from "../components/FactorsGrid";
+
 import { FactorItemsGreen, FactorItemsRed } from '../data/FactorItems'
 import { setCellPositions } from '../store/features/storyInfo'
 import { PRESENT_TABLE_DATA } from "../data/TableConstants";
@@ -17,14 +17,14 @@ export default function BigPicture() {
   }
 
   const processSummaryData = () => {
-      const storySoFarInputs = storyInfo?.value?.storySoFarInput
-      const redStorySoFarInput = storyInfo?.value?.redStorySoFarInput
-      const futureConfidenceInput = storyInfo?.value?.futureConfidenceInput
-      const redCellFutureConfidenceInput = storyInfo?.value?.redCellFutureConfidenceInput
       const cellPositions = storyInfo?.value?.cellPositions
-      const redCellPositions = storyInfo?.value?.redCellPositions
       const storySoFarFactorsInputTexts = storyInfo?.value?.storySoFarFactorsInputTexts
       const futureConfidenceFactorInputTexts = storyInfo?.value?.futureConfidenceFactorInputTexts
+
+      const presentGrid = storyInfo?.value?.storySoFarGrid
+      const presentGridRed = storyInfo?.value?.storySoFarGridRed
+      const futureGrid = storyInfo?.value?.futureConfidenceGrid
+      const futureGridRed = storyInfo?.value?.futureConfidenceGridRed
 
       const userAge = userInfo?.value?.clientAge
       const firstHalfColumnCount = PRESENT_TABLE_DATA.filter(i => {
@@ -36,54 +36,6 @@ export default function BigPicture() {
 
       const indexToAdd = firstHalfColumnCount
 
-      let mergedValues = Object.keys(storySoFarInputs).reduce((acc, c) => {
-        const obb = { ...storySoFarInputs[c] }
-        const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [..._acc, obb[_c]]
-        }, [])
-        acc = [...acc, ...arr]
-        return acc
-      }, []).map(i => ({ ...i, from: 'PRESENT' }))
-
-      mergedValues = Object.keys(futureConfidenceInput).reduce((acc, c) => {
-        const obb = { ...futureConfidenceInput[c] }
-        const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [
-            ..._acc, 
-            { 
-              ...obb[_c], 
-              relativeX: obb[_c]?.relativeX + (obb[_c]?.width * firstHalfColumnCount) 
-            }
-          ]
-        }, [])
-        acc = [...acc, ...arr]
-        return acc
-      }, mergedValues).map(i => ({ ...i, ...(!i.from ? { from: 'FUTURE' } : {}) }))
-
-      let mergedValuesRed = Object.keys(redStorySoFarInput).reduce((acc, c) => {
-        const obb = { ...redStorySoFarInput[c] }
-        const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [..._acc, obb[_c]]
-        }, [])
-        acc = [...acc, ...arr]
-        return acc
-      }, []).map(i => ({ ...i, from: 'PRESENT' }))
-  
-      mergedValuesRed = Object.keys(redCellFutureConfidenceInput).reduce((acc, c) => {
-        const obb = { ...redCellFutureConfidenceInput[c] }
-        const arr = Object.keys(obb).reduce((_acc, _c) => {
-          return [
-            ..._acc, 
-            { 
-              ...obb[_c], 
-              relativeX: obb[_c]?.relativeX + (obb[_c]?.width * firstHalfColumnCount) 
-            }
-          ]
-        }, [])
-        acc = [...acc, ...arr]
-        return acc
-      }, mergedValuesRed).map(i => ({ ...i, ...(!i.from ? { from: 'FUTURE' } : {}) }))
-  
       const grid = [
         ...new Array(10)
           .fill([])
@@ -101,59 +53,88 @@ export default function BigPicture() {
           ])
       ]
 
-      mergedValues.forEach((m) => {
-        const factor = FactorItemsGreen.find(i => m.factorId === i.factorId)
-        let __obj = { 
-          ...m,
-          ...factor,
-          ...cellPositions[m.row][m.col],
-        }
-
-        if (m.from === 'PRESENT') { 
-          if (factor.isInput) {
-            __obj.text = storySoFarFactorsInputTexts[factor.factorId]
-          }
-
-          grid[m.row][m.col] = __obj
-        } else {
-          if (factor.isInput) {
-            __obj.text = futureConfidenceFactorInputTexts[factor.factorId]
-          }
-
-          if ((m.col + (indexToAdd - 1)) < cellPositions[m.row].length) {
-            grid[m.row][m.col + (indexToAdd - 1)] = { 
-              ...__obj,
-              ...cellPositions[m.row][m.col + (indexToAdd - 1)],
+      let rowLength = presentGrid.length
+      for (let row = 0; row < rowLength; row++) {
+        const colLength = presentGrid[row].length
+        for (let col = 0; col < colLength; col++) {
+          const factorId  = presentGrid[row][col]
+          if (factorId) {
+            let factorDetails = {}
+            const factor = FactorItemsGreen.find(i => factorId === i.factorId)
+            if (factor) {
+              const __obj = { ...factor }
+              if (__obj.isInput) {
+                __obj.text = storySoFarFactorsInputTexts[factorId]
+              }
+              factorDetails = { ...__obj }
             }
+            grid[row][col] = factorDetails
           }
         }
-      })
+      }
 
-      mergedValuesRed.forEach((m) => {
-        const factor = FactorItemsRed.find(i => m.factorId === i.factorId)
-        let __obj = { 
-          ...m,
-          ...factor,
-          ...redCellPositions[m.row][m.col],
-        }
-        if (m.from === 'PRESENT') {
-          if (factor.isInput) {
-            __obj.text = storySoFarFactorsInputTexts[factor.factorId]
-          }
-          gridRed[m.row][m.col] = __obj
-        } else {
-          if (factor.isInput) {
-            __obj.text = futureConfidenceFactorInputTexts[factor.factorId] 
-          }
+      rowLength = futureGrid.length
 
-          if ((m.col + (indexToAdd - 1)) < redCellPositions[m.row].length) {
-            gridRed[m.row][m.col + (indexToAdd - 1)] = {
-              ...__obj,
-              ...redCellPositions[m.row][m.col + (indexToAdd - 1)]
+      for (let row = 0; row < rowLength; row++) {
+        const colLength = futureGrid[row].length
+        for (let col = 0; col < colLength; col++) {
+          const factorId  = futureGrid[row][col]
+          if (factorId) {
+            let factorDetails = {}
+            const factor = FactorItemsGreen.find(i => factorId === i.factorId)
+            if (factor) {
+              const __obj = { ...factor }
+              if (__obj.isInput) {
+                __obj.text = futureConfidenceFactorInputTexts[factorId]
+              }
+              factorDetails = { ...__obj }
             }
+            grid[row][col + (indexToAdd - 1) ] = factorDetails
           }
         }
-      })
+      }
+
+      rowLength = presentGridRed.length
+      for (let row = 0; row < rowLength; row++) {
+        const colLength = presentGridRed[row].length
+        for (let col = 0; col < colLength; col++) {
+          const factorId  = presentGridRed[row][col]
+          if (factorId) {
+            let factorDetails = {}
+            const factor = FactorItemsRed.find(i => factorId === i.factorId)
+            if (factor) {
+              const __obj = { ...factor }
+              if (__obj.isInput) {
+                __obj.text = storySoFarFactorsInputTexts[factorId]
+              }
+              factorDetails = { ...__obj }
+            }
+            gridRed[row][col] = factorDetails
+          }
+        }
+      }
+
+      rowLength = futureGridRed.length
+
+      for (let row = 0; row < rowLength; row++) {
+        const colLength = futureGridRed[row].length
+        for (let col = 0; col < colLength; col++) {
+          const factorId  = futureGridRed[row][col]
+          if (factorId) {
+            let factorDetails = {}
+            const factor = FactorItemsRed.find(i => factorId === i.factorId)
+            if (factor) {
+              const __obj = { ...factor }
+              if (__obj.isInput) {
+                __obj.text = futureConfidenceFactorInputTexts[factorId]
+              }
+              factorDetails = { ...__obj }
+            }
+            gridRed[row][col + (indexToAdd - 1)] = factorDetails
+          }
+        }
+      }
+
       const ageIndex = PRESENT_TABLE_DATA.findIndex(i => {
         if (i.range[0] >= userAge && userAge <= i.range[1]) {
           return true
@@ -168,14 +149,13 @@ export default function BigPicture() {
     return processSummaryData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    storyInfo?.value?.storySoFarInput,
-    storyInfo?.value?.redStorySoFarInput,
-    storyInfo?.value?.futureConfidenceInput,
-    storyInfo?.value?.redCellFutureConfidenceInput,
     storyInfo?.value?.cellPositions,
-    storyInfo?.value?.redCellPositions,
     storyInfo?.value?.storySoFarFactorsInputTexts,
-    storyInfo?.value?.futureConfidenceFactorInputTexts
+    storyInfo?.value?.futureConfidenceFactorInputTexts,
+    storyInfo?.value?.storySoFarGrid,
+    storyInfo?.value?.storySoFarGridRed,
+    storyInfo?.value?.futureConfidenceGrid,
+    storyInfo?.value?.futureConfidenceGridRed,
   ])
 
   const { x, width } = summaryData?.agePosition || {}

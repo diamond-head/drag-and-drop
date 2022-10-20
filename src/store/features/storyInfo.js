@@ -14,7 +14,12 @@ const initialStateValues = {
   redCellFutureConfidenceInput: {},
 
   storySoFarFactorsInputTexts: {},
-  futureConfidenceFactorInputTexts: {}
+  futureConfidenceFactorInputTexts: {},
+
+  storySoFarGrid: [],
+  storySoFarGridRed: [],
+  futureConfidenceGrid: [],
+  futureConfidenceGridRed: []
 };
 
 export const storyInfo = createSlice({
@@ -207,6 +212,114 @@ export const storyInfo = createSlice({
           break
       }
     },
+    setStorySoFarGrid: (state, action) => {
+      switch (action.payload.tableType) {
+        case 'GREEN': {
+          const input = action.payload.input
+          const currentGrid = [...state.value.storySoFarGrid]
+          const rowL = input.length
+          if (rowL > 0) {
+            for (let row = 0; row < rowL; row++) {
+              const colL = input[row].length
+              for (let col = 0; col < colL; col++) {
+                if (!currentGrid[row]) {
+                  currentGrid[row] = []
+                }
+
+                if (!currentGrid[row][col]) {
+                  currentGrid[row][col] = ''
+                }
+
+                currentGrid[row][col] = input[row][col]
+              }
+            }
+
+            state.value.storySoFarGrid = currentGrid
+          }
+          break
+        }
+        case 'RED': {
+          const input = action.payload.input
+          const currentGrid = [...state.value.storySoFarGridRed]
+          const rowL = input.length
+          if (rowL > 0) {
+            for (let row = 0; row < rowL; row++) {
+              const colL = input[row].length
+              for (let col = 0; col < colL; col++) {
+                if (!currentGrid[row]) {
+                  currentGrid[row] = []
+                }
+
+                if (!currentGrid[row][col]) {
+                  currentGrid[row][col] = ''
+                }
+
+                currentGrid[row][col] = input[row][col]
+              }
+            }
+
+            state.value.storySoFarGridRed = currentGrid
+          }
+          break
+        }
+        default:
+          break
+      }
+    },
+    setFutureCondidenceGrid: (state, action) => {
+      switch (action.payload.tableType) {
+        case 'GREEN': {
+          const input = action.payload.input
+          const currentGrid = [...state.value.futureConfidenceGrid]
+          const rowL = input.length
+          if (rowL > 0) {
+            for (let row = 0; row < rowL; row++) {
+              const colL = input[row].length
+              for (let col = 0; col < colL; col++) {
+                if (!currentGrid[row]) {
+                  currentGrid[row] = []
+                }
+
+                if (!currentGrid[row][col]) {
+                  currentGrid[row][col] = ''
+                }
+
+                currentGrid[row][col] = input[row][col]
+              }
+            }
+
+            state.value.futureConfidenceGrid = currentGrid
+          }
+          break
+        }
+        case 'RED': {
+          const input = action.payload.input
+          const currentGrid = [...state.value.futureConfidenceGrid]
+          const rowL = input.length
+          if (rowL > 0) {
+            for (let row = 0; row < rowL; row++) {
+              const colL = input[row].length
+              for (let col = 0; col < colL; col++) {
+                if (!currentGrid[row]) {
+                  currentGrid[row] = []
+                }
+
+                if (!currentGrid[row][col]) {
+                  currentGrid[row][col] = ''
+                }
+
+                currentGrid[row][col] = input[row][col]
+              }
+            }
+
+            state.value.futureConfidenceGrid = currentGrid
+          }
+          break
+        }
+        default:
+          break
+      }
+    },
     resetPositions: (state) => {
       state.value.cellPositions = initialStateValues.cellPositions;
       state.value.redCellPositions = initialStateValues.redCellPositions;
@@ -221,7 +334,9 @@ export const {
   setStorySoFarInput, 
   setFutureCellPositions,
   setStorySoFarFactorsInput,
-  setFutureConfidenceFactorsInput
+  setFutureConfidenceFactorsInput,
+  setStorySoFarGrid,
+  setFutureCondidenceGrid
 } = storyInfo.actions;
 
 export default storyInfo.reducer;

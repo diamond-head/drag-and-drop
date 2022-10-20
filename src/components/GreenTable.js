@@ -98,9 +98,9 @@ export default function GreenTable({
               >
                 {Object.keys(col).length > 0 && (
                   <div style={{
-                    position: 'absolute',
-                    top: col.y,
-                    left: col.x,
+                    // position: 'absolute',
+                    // top: col.y,
+                    // left: col.x,
                     height: data.height,
                     width: data.width
                   }} className={`${col.background} bg-green-500 flex justify-center text-center`}>
