@@ -51,18 +51,18 @@ export default function GreenTable({
 
   return (
     <table className="mt-4">
-      <thead className={`green-table-header ${isSummaryPage ? 'text-sm' : ''}`}>
+      <thead className={`green-table-header`}>
         <tr className="">
           <th className="border-spacing-0 p-0 h-[27px] w-[102px]"></th>
           {tableList?.map((data, idx) => (
-            <th ref={idx === 0 ? headRef : null} className="border-spacing-0 p-0 h-[27px] w-[102px]" key={idx + data.id}>{data.text}</th>
+            <th ref={idx === 0 ? headRef : null} className="text-sm border-spacing-0 p-0 h-[27px] w-[102px]" key={idx + data.id}>{data.text}</th>
           ))}
         </tr>
       </thead>
       <tbody id="drag-board-green">
         {!isSummaryPage && tableValues.map((val, idx) => (
           <tr key={idx + 'values'} className={`text-green-500 font-medium`}>
-            <td className={`h-[27px] w-[102px] border-spacing-0 p-0`}>{val}</td>
+            <td className={`h-[27px] w-[102px] border-spacing-0 p-0 text-sm`}>{val}</td>
             {tableList?.map((_, index) => (
               <td
                 className="h-[27px] w-[102px] border-spacing-0 p-0"
@@ -98,9 +98,6 @@ export default function GreenTable({
               >
                 {Object.keys(col).length > 0 && (
                   <div style={{
-                    // position: 'absolute',
-                    // top: col.y,
-                    // left: col.x,
                     height: data.height,
                     width: data.width
                   }} className={`${col.background} bg-green-500 flex justify-center text-center`}>

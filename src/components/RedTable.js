@@ -48,7 +48,7 @@ export default function RedTable({
       <tbody id={'drag-board-red'}>
         {!isSummaryPage && TABLE_VALUES.map((val, idx) => (
           <tr key={idx + 'values'} className={`text-red-500 font-medium `}>
-            <td className={`h-[27px] w-[102px] border-spacing-0 p-0`}>{val}</td>
+            <td className={`h-[27px] w-[102px] border-spacing-0 p-0 text-sm`}>{val}</td>
             {tableList?.map((_,index) => (
               <td
                 className="h-[27px] w-[102px] border-spacing-0 p-0"
@@ -103,7 +103,7 @@ export default function RedTable({
         <tr className="hidden">
           <th className="border-spacing-0 p-0 h-[27px] w-[102px]"></th>
           {tableList?.map((data, idx) => (
-            <th className="border-spacing-0 p-0 h-[27px] w-[102px]" key={idx + data.id}>{data.text}</th>
+            <th className="border-spacing-0 p-0 h-[27px] w-[102px] text-sm" key={idx + data.id}>{data.text}</th>
           ))}
         </tr>
       </thead>

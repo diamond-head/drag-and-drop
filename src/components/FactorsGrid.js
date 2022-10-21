@@ -40,11 +40,58 @@ export default function FactorsGrid({
     }))
   }
 
+  const findClosestCell = (factorX, factorY, grid, row, col, rowLength, colLength) => {
+    let closestCellToFactor = null
+    let closestCellToFactorRow = -1
+    let closestCellToFactorCol = -1
+
+    let minimum = Number.MAX_SAFE_INTEGER
+    let R = row
+    let C = col
+
+    if (filledGrid[R][C] !== '') {
+      return
+    }
+
+    const dist = calculateDistance(
+      factorX,
+      factorY,
+      grid[R][C].x,
+      grid[R][C].y,
+      row,
+      col
+    )
+    const res = Math.min(minimum, dist.distance)
+    if (res === dist.distance && filledGrid[dist.row][dist.col] === '') {
+      closestCellToFactor = grid[dist.row][dist.col]
+      closestCellToFactorRow = dist.row
+      closestCellToFactorCol = dist.col
+    }
+    minimum = res
+    if (
+      closestCellToFactor && 
+      typeof closestCellToFactor?.x !== 'undefined' && 
+      typeof closestCellToFactor?.y !== 'undefined'
+    ) {
+      return {
+        cell: closestCellToFactor,
+        row: closestCellToFactorRow,
+        col: closestCellToFactorCol,
+      }
+    }
+    return null
+  }
+
   const handleFactorDrag = (data = {}, ref = {}, factorId, onChange = true) => {
     const { x: factorX, y: factorY } = data
     const { x: refX, y: refY } = ref
 
-    if (!factorX || !factorY || !refX || !refY) {
+    if (
+      typeof factorX === 'undefined' || 
+      typeof factorY === 'undefined'  || 
+      typeof refX === 'undefined'  || 
+      typeof refY === 'undefined'
+    ) {
       return
     }
 
@@ -54,13 +101,8 @@ export default function FactorsGrid({
     let closestCell = {}
     let closestCellRow = -1
     let closestCellCol = -1
-    let closestCellToFactor = null
-    let closestCellToFactorRow = -1
-    let closestCellToFactorCol = -1
     let cellWidth = 0
     let cellHeight = 0
-    let minimum = Number.MAX_SAFE_INTEGER
-
     let shouldBreak = false
 
     for (let row = 0; row < rowLength; row++) {
@@ -72,33 +114,26 @@ export default function FactorsGrid({
           closestCellRow = row
           closestCellCol = col
           shouldBreak = true
-          closestCellToFactor = null
           cellWidth = cell.width
           cellHeight = cell.height
           break
         } else {
-          const dist = calculateDistance(
-            factorX,
-            factorY,
-            cell.x,
-            cell.y,
-            row,
-            col
-          )
-          const res = Math.min(minimum, dist.distance)
-          if (res === dist.distance && filledGrid[dist.row][dist.col] === '') {
-            closestCellToFactor = __cellPosition[dist.row][dist.col]
-            closestCellToFactorRow = dist.row
-            closestCellToFactorCol = dist.col
+          const result = findClosestCell(factorX, factorY, __cellPosition, row, col, rowLength, colLength)
+          if (!result) {
+            continue
           }
-          minimum = res
-          if (closestCellToFactor && !!closestCellToFactor?.x && !!closestCellToFactor?.y) {
-            closestCell = closestCellToFactor
-            closestCellRow = closestCellToFactorRow
-            closestCellCol = closestCellToFactorCol
-            cellWidth = closestCellToFactor.width
-            cellHeight = closestCellToFactor.height
-          }
+
+          const {
+            cell: _closestCellToFactor,
+            row: _closestCellToFactorRow,
+            col: _closestCellToFactorCol
+          } = result
+
+          closestCell = _closestCellToFactor
+          closestCellRow = _closestCellToFactorRow
+          closestCellCol = _closestCellToFactorCol
+          cellWidth = _closestCellToFactor.width
+          cellHeight = _closestCellToFactor.height
         }
       }
 
@@ -127,23 +162,12 @@ export default function FactorsGrid({
       }
     }
 
-    if (closestCellRow > -1 && closestCellCol > -1) {
-      __filledGrid[closestCellRow][closestCellCol] = factorId
-      setFilledGrid(__filledGrid)
+    if (closestCellRow === -1 && closestCellCol === -1) {
+      return
     }
 
-    setUpdateFactorPositions((prev) => ({
-      ...prev,
-      [factorId]: {
-        ...prev[factorId],
-        row: closestCellRow,
-        col: closestCellCol,
-        x: closestCell?.x,
-        y: closestCell?.y,
-        isCellFilled: true
-      }
-    }))
-
+    console.log(closestCellRow, closestCellCol)
+    __filledGrid[closestCellRow][closestCellCol] = factorId
     const inputPositions = [
       closestCell.ageId,
       {
@@ -161,6 +185,18 @@ export default function FactorsGrid({
       }
     ]
 
+    setFilledGrid(__filledGrid)
+    setUpdateFactorPositions((prev) => ({
+      ...prev,
+      [factorId]: {
+        ...prev[factorId],
+        row: closestCellRow,
+        col: closestCellCol,
+        x: closestCell?.x,
+        y: closestCell?.y,
+        isCellFilled: true
+      }
+    }))
     onChange && onGridChange(__filledGrid, tableType)
     onChange && onCellPositionsChange(inputPositions, tableType)
   }
