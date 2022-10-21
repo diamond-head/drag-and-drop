@@ -27,14 +27,6 @@ export default function BigPicture() {
       const futureGridRed = storyInfo?.value?.futureConfidenceGridRed
 
       const userAge = userInfo?.value?.clientAge
-      const firstHalfColumnCount = PRESENT_TABLE_DATA.filter(i => {
-        if (i.range[0] >= userAge && userAge <= i.range[1]) {
-          return false
-        }
-        return true
-      })?.length
-
-      const indexToAdd = firstHalfColumnCount
 
       const grid = [
         ...new Array(10)
@@ -54,8 +46,10 @@ export default function BigPicture() {
       ]
 
       let rowLength = presentGrid.length
+      let indexToAdd = -1
       for (let row = 0; row < rowLength; row++) {
         const colLength = presentGrid[row].length
+        indexToAdd = colLength
         for (let col = 0; col < colLength; col++) {
           const factorId  = presentGrid[row][col]
           if (factorId) {
@@ -67,8 +61,8 @@ export default function BigPicture() {
                 __obj.text = storySoFarFactorsInputTexts[factorId]
               }
               factorDetails = { ...__obj }
+              grid[row][col] = factorDetails
             }
-            grid[row][col] = factorDetails
           }
         }
       }
@@ -77,7 +71,7 @@ export default function BigPicture() {
 
       for (let row = 0; row < rowLength; row++) {
         const colLength = futureGrid[row].length
-        for (let col = 0; col < colLength; col++) {
+        for (let col = 1; col < colLength; col++) {
           const factorId  = futureGrid[row][col]
           if (factorId) {
             let factorDetails = {}
@@ -88,8 +82,8 @@ export default function BigPicture() {
                 __obj.text = futureConfidenceFactorInputTexts[factorId]
               }
               factorDetails = { ...__obj }
+              grid[row][col + (indexToAdd - 1) ] = factorDetails
             }
-            grid[row][col + (indexToAdd - 1) ] = factorDetails
           }
         }
       }
@@ -97,6 +91,7 @@ export default function BigPicture() {
       rowLength = presentGridRed.length
       for (let row = 0; row < rowLength; row++) {
         const colLength = presentGridRed[row].length
+        indexToAdd = colLength
         for (let col = 0; col < colLength; col++) {
           const factorId  = presentGridRed[row][col]
           if (factorId) {
@@ -108,8 +103,8 @@ export default function BigPicture() {
                 __obj.text = storySoFarFactorsInputTexts[factorId]
               }
               factorDetails = { ...__obj }
+              gridRed[row][col] = factorDetails
             }
-            gridRed[row][col] = factorDetails
           }
         }
       }
@@ -118,7 +113,7 @@ export default function BigPicture() {
 
       for (let row = 0; row < rowLength; row++) {
         const colLength = futureGridRed[row].length
-        for (let col = 0; col < colLength; col++) {
+        for (let col = 1; col < colLength; col++) {
           const factorId  = futureGridRed[row][col]
           if (factorId) {
             let factorDetails = {}
@@ -129,8 +124,8 @@ export default function BigPicture() {
                 __obj.text = futureConfidenceFactorInputTexts[factorId]
               }
               factorDetails = { ...__obj }
+              gridRed[row][col + (indexToAdd - 1)] = factorDetails
             }
-            gridRed[row][col + (indexToAdd - 1)] = factorDetails
           }
         }
       }
@@ -171,7 +166,7 @@ export default function BigPicture() {
         cell
         summaryData={summaryData}
         tableList={PRESENT_TABLE_DATA}
-        arrowPos={{ hide: !x && true, position: 'BOTTOM', value: [(x && width) ? (x - (width / 2)) : 'auto'] }}
+        arrowPos={{ hide: !x && true, position: 'BOTTOM', value: [(x && width) ? (x + (width / 2)) : 'auto'] }}
         onRecordCellPositions={onRecordCellPositions} 
       />
     </div>

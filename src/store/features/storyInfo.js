@@ -294,7 +294,7 @@ export const storyInfo = createSlice({
         }
         case 'RED': {
           const input = action.payload.input
-          const currentGrid = [...state.value.futureConfidenceGrid]
+          const currentGrid = [...state.value.futureConfidenceGridRed]
           const rowL = input.length
           if (rowL > 0) {
             for (let row = 0; row < rowL; row++) {
@@ -312,7 +312,7 @@ export const storyInfo = createSlice({
               }
             }
 
-            state.value.futureConfidenceGrid = currentGrid
+            state.value.futureConfidenceGridRed = currentGrid
           }
           break
         }
